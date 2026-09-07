@@ -483,6 +483,30 @@ html.light .daypill.on{background:var(--tinta);border-color:var(--tinta)}
 .daypill.on.complete .dot,.daypill.on.free .dot{background:var(--contratinta)}
 
 /* ── Sesión libre (entrené, pero no la rutina) ── */
+/* ---------- Tarjeta de marcado del día (v2) ----------
+   Cuidado al tocar esto: los overrides `html.light .markcard` tienen la MISMA especificidad que
+   `.markcard.on` y, al ir después en el archivo, la vencerían. Por eso el estado activo se
+   re-declara como `html.light .markcard.on` — el mismo defecto que ya mordió a .daypill en v1.19. */
+.markcard{display:flex;align-items:center;gap:12px;padding:14px 15px;border-radius:18px;margin-top:16px;
+  background:rgba(255,255,255,.05);border:1px solid var(--v-borde);
+  backdrop-filter:var(--v-blur);-webkit-backdrop-filter:var(--v-blur);
+  transition:background var(--t-menu) var(--ease),border-color var(--t-menu) var(--ease)}
+html.light .markcard{background:rgba(255,255,255,.72)}
+.markcard.on{background:rgba(52,211,153,.10);border-color:rgba(52,211,153,.30)}
+html.light .markcard.on{background:rgba(5,150,105,.10);border-color:rgba(5,150,105,.30)}
+.markcard .mk-ico{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;
+  background:var(--sup-2);border:1px solid var(--brd);color:var(--zinc-400);
+  transition:background var(--t-menu) var(--ease),border-color var(--t-menu) var(--ease),color var(--t-menu) var(--ease)}
+.markcard.on .mk-ico{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.32);color:var(--emerald)}
+html.light .markcard.on .mk-ico{background:rgba(5,150,105,.12);border-color:rgba(5,150,105,.30)}
+.mk-btn{flex:none;border-radius:999px;padding:11px 18px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.09em;cursor:pointer;border:none;
+  background:var(--tinta);color:var(--contratinta);
+  box-shadow:0 8px 26px -12px rgba(0,0,0,.8);
+  transition:transform var(--t-toque) var(--resorte),background var(--t-toque) var(--suave),box-shadow var(--t-toque) var(--suave)}
+.mk-btn:active{transform:scale(.96);box-shadow:none}
+.markcard.on .mk-btn{background:transparent;color:var(--zinc-400);border:1px solid var(--v-borde);box-shadow:none;font-weight:600}
+html.light .markcard.on .mk-btn{color:var(--zinc-500);border-color:rgba(5,150,105,.28)}
 .freecard{display:flex;align-items:center;gap:12px;padding:14px 15px;border-radius:18px;margin-top:12px;
   cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--v-borde);transition:.2s var(--ease)}
 html.light .freecard{background:rgba(255,255,255,.72)}
@@ -718,7 +742,7 @@ html.light .mchip{background:rgba(255,255,255,.76)}
     </svg>
   </div>
   <h1>STICK <b style="color:var(--zinc-400)">FIT</b></h1>
-  <p class="tag">Tu protocolo de fuerza. Construye un físico atlético y magro, sesión a sesión.</p>
+  <p class="tag">Tu rutina y tu constancia. Gana masa entrenando semana tras semana.</p>
   <button class="btn-primary" id="enterBtn">Entrenar hoy
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </button>
@@ -954,68 +978,87 @@ const SEED_EX=[
     ["Baja piernas para más dificultad manteniendo la lumbar pegada."]),
 ];
 
-/* ---------- Rutina semilla: Torso/Pierna ×2 ---------- */
+/* ---------- Rutina semilla: Hipertrofia 5 días (v2) ----------
+   Split acordado con el Señor Stick: pecho/espalda ×2, pierna ×2, brazo/hombro con día propio
+   y además trabajo directo en los días grandes. El primer movimiento de cada día va en rango
+   pesado (5-8) y el resto en rango de hipertrofia (8-15) — decisión 4 del rediseño.
+   Lunes pecho→espalda y viernes espalda→pecho invierten el orden a propósito: ninguno de los
+   dos grupos se entrena siempre cansado. */
 function d(focus,rest,items){return {focus,rest,exercises:items||[]};}
 function it(exId,sets,reps){return {exId,sets,reps};}
 const SEED_ROUTINE={
-  id:"protocolo-base",name:"Protocolo Base",
+  id:"masa-brazos",name:"Masa · Brazos",
   days:{
-    lun:d("Torso A",false,[it("press-banca",4,"6-8"),it("dominadas-prono",4,"5-8"),it("press-militar",4,"6-8"),it("remo-barra",4,"8-10"),it("elevaciones-laterales",3,"12-15"),it("curl-barra",3,"8-12"),it("extension-triceps",3,"12-15")]),
-    mar:d("Pierna A",false,[it("sentadilla",4,"6-8"),it("peso-muerto-rumano",4,"8-10"),it("zancadas",3,"10-12"),it("gemelos",4,"12-15"),it("plancha",3,"40-60s")]),
-    mie:d("Torso B",false,[it("press-inclinado",4,"8-10"),it("dominadas-supinas",4,"6-10"),it("elevaciones-laterales",3,"12-15"),it("face-pull",3,"15-20"),it("remo-mancuerna",3,"10-12"),it("curl-martillo",3,"10-12"),it("fondos-paralelas",3,"8-12")]),
+    lun:d("Pecho y Espalda",false,[it("press-banca",4,"5-8"),it("press-inclinado",3,"8-12"),it("remo-barra",4,"8-10"),it("jalon-pecho",3,"10-12"),it("elevaciones-laterales",3,"12-15"),it("face-pull",3,"15-20")]),
+    mar:d("Pierna",false,[it("sentadilla",4,"5-8"),it("peso-muerto-rumano",3,"8-12"),it("prensa",3,"10-12"),it("sentadilla-bulgara",3,"10-12"),it("gemelos",4,"12-15"),it("plancha",3,"40-60s")]),
+    mie:d("Brazo y Hombro",false,[it("press-militar",4,"5-8"),it("elevaciones-laterales",4,"12-15"),it("curl-barra",4,"8-12"),it("extension-triceps",4,"10-15"),it("curl-martillo",3,"10-12"),it("fondos-banco",3,"10-15")]),
     jue:d("Descanso",true,[]),
-    vie:d("Pierna B",false,[it("peso-muerto",4,"5-6"),it("hip-thrust",4,"10-12"),it("sentadilla-bulgara",3,"10-12"),it("elev-piernas",3,"10-15"),it("gemelos",4,"12-15"),it("hiit-sprints",6,"30s sprint / 90s caminar")]),
-    sab:d("Descanso",true,[]),
+    vie:d("Espalda y Pecho",false,[it("dominadas-prono",4,"5-8"),it("remo-mancuerna",4,"8-12"),it("fondos-paralelas",3,"8-12"),it("aperturas",3,"12-15"),it("curl-martillo",3,"10-12"),it("extension-triceps",3,"12-15")]),
+    sab:d("Pierna corta y Brazo",false,[it("prensa",4,"6-10"),it("peso-muerto-rumano",3,"10-12"),it("gemelos",4,"12-15"),it("curl-barra",3,"8-12"),it("fondos-banco",3,"10-15"),it("elevaciones-laterales",3,"12-15"),it("elev-piernas",3,"10-15")]),
     dom:d("Descanso",true,[]),
   }
 };
 
 /* ---------- Estado ---------- */
-const KEY="stickfit-v1";
-const SEED_VERSION=3; // sube este número cuando cambie la rutina semilla para refrescarla en equipos ya usados
+/* Clave nueva en el rediseño v2: se arranca limpio en vez de migrar. La migración habría corrido
+   a ciegas en el celular del Señor Stick, donde no se puede probar ni deshacer, y una migración
+   con un fallo es peor que empezar de cero. `stickfit-v1` NO se borra: queda intacto, y de él se
+   ofrece un rescate único de perfil, peso corporal y medidas (rescatarV1). */
+const KEY="stickfit-v2";
+const KEY_V1="stickfit-v1";
+const SEED_VERSION=1; // sube este número cuando cambie la rutina semilla para refrescarla en equipos ya usados
 const LB="lb"; // unidad de las cargas de fuerza (el peso corporal y la nutrición siguen en kg)
 function kgToLb(kg){return +(kg*2.20462).toFixed(1);}
+function estadoInicial(){
+  return {onboarded:false,seedVersion:SEED_VERSION,activeRoutineId:SEED_ROUTINE.id,
+    routines:[structuredClone(SEED_ROUTINE)],customEx:[],imgUrls:{},
+    days:{},          // ← la verdad de la asistencia: S.days[iso] = {s:"done"|"free", label?}
+    checks:{},        // ayuda durante la sesión; NO condiciona la asistencia
+    history:[],profile:null,weightLog:[],weightGoal:null,measures:[],
+    liftUnit:"lb",measureSchema:2,rescateOfrecido:false};
+}
 let S=load();
 function load(){
   try{const raw=JSON.parse(localStorage.getItem(KEY));
     if(raw&&raw.routines){
-      // migración: refresca solo la rutina semilla "Protocolo Base" sin tocar rutinas propias, logs ni perfil
       if(raw.seedVersion!==SEED_VERSION){
         const i=raw.routines.findIndex(r=>r.id===SEED_ROUTINE.id);
         if(i>=0)raw.routines[i]=structuredClone(SEED_ROUTINE);
         raw.seedVersion=SEED_VERSION;
         localStorage.setItem(KEY,JSON.stringify(raw));
       }
-      raw.weightLog=raw.weightLog||[];
-      raw.measures=raw.measures||[];
-      raw.free=raw.free||{}; // sesiones libres (entrenó, pero no la rutina); clave = fecha ISO
-      if(raw.weightGoal===undefined)raw.weightGoal=null;
-      // migración: las cargas de fuerza pasan de kg a lb (el peso corporal y la nutrición siguen en kg)
-      if(raw.liftUnit!=="lb"){
-        (raw.history||[]).forEach(l=>{
-          if(l.weight!=null)l.weight=kgToLb(l.weight);
-          if(Array.isArray(l.sets))l.sets.forEach(s=>{if(s.weight!=null)s.weight=kgToLb(s.weight);});
-        });
-        raw.liftUnit="lb";
-        localStorage.setItem(KEY,JSON.stringify(raw));
-      }
-      // migración: las medidas pasan de 4 zonas genéricas a 9 por lado (brazo→bíceps der., muslo→muslo der.)
-      if(raw.measureSchema!==2){
-        (raw.measures||[]).forEach(l=>{
-          if(l.brazo!=null&&l.biceps_der==null){l.biceps_der=l.brazo;}
-          if(l.muslo!=null&&l.muslo_der==null){l.muslo_der=l.muslo;}
-          delete l.brazo;delete l.muslo;
-        });
-        raw.measureSchema=2;
-        localStorage.setItem(KEY,JSON.stringify(raw));
-      }
+      // red de seguridad: si una clave nace ausente (respaldo viejo importado), se rellena
+      const base=estadoInicial();
+      Object.keys(base).forEach(k=>{if(raw[k]===undefined)raw[k]=base[k];});
       return raw;
     }
   }catch(e){}
-  return {onboarded:false,seedVersion:SEED_VERSION,activeRoutineId:SEED_ROUTINE.id,routines:[structuredClone(SEED_ROUTINE)],
-    customEx:[],imgUrls:{},checks:{},free:{},history:[],profile:null,weightLog:[],weightGoal:null,measures:[],liftUnit:"lb",measureSchema:2};
+  return estadoInicial();
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+
+/* ---------- Rescate único desde stickfit-v1 ----------
+   Trae SOLO perfil, peso corporal y medidas: nunca rutinas, checks ni historial de series.
+   Se ofrece una vez (bandera `rescateOfrecido`) y no vuelve a aparecer. */
+function hayDatosV1(){
+  try{const v=JSON.parse(localStorage.getItem(KEY_V1));
+    if(!v)return null;
+    const n=(v.weightLog||[]).length+(v.measures||[]).length+(v.profile?1:0);
+    return n>0?v:null;
+  }catch(e){return null;}
+}
+function rescatarV1(){
+  const v=hayDatosV1();
+  if(!v)return false;
+  if(v.profile)S.profile=v.profile;
+  if(Array.isArray(v.weightLog))S.weightLog=v.weightLog;
+  if(v.weightGoal!==undefined)S.weightGoal=v.weightGoal;
+  if(Array.isArray(v.measures))S.measures=v.measures;
+  S.measureSchema=v.measureSchema||2;
+  S.rescateOfrecido=true;save();
+  return true;
+}
+function descartarRescate(){S.rescateOfrecido=true;save();}
 function allEx(){return [...SEED_EX,...(S.customEx||[])];}
 function getEx(id){return allEx().find(e=>e.id===id);}
 function activeRoutine(){return S.routines.find(r=>r.id===S.activeRoutineId)||S.routines[0];}
@@ -1102,17 +1145,46 @@ function muscleSVG(active){
    ============================================================ */
 function checkKey(dayId,exIdx){return `${dateOfDay(dayId)}|${dayId}|${exIdx}`;}
 function isChecked(dayId,exIdx){return !!S.checks[checkKey(dayId,exIdx)];}
-/* ---------- Sesión libre ----------
-   Entrenar sin seguir la rutina (con un amigo, una rutina exprés, un partido) no se puede
-   deducir de los checks ni del historial de cargas: es información nueva, así que vive en su
-   propia clave `S.free[fecha] = etiqueta`. Es lo único de la asistencia que el usuario declara
-   a mano; todo lo demás se sigue derivando. */
+/* ---------- Estados de día (rediseño v2) ----------
+   El día es la verdad de la asistencia, no los checks por ejercicio: se puede entrenar sin
+   marcar un solo ejercicio y el calendario tiene que registrarlo igual. Cuatro estados:
+
+     descanso   lo dicta la rutina; nunca se toca a mano
+     entrenado  el Señor Stick lo marcó (un toque)
+     libre      entrenó, pero otra cosa distinta a la rutina
+     fallado    AUTOMÁTICO: día pasado que tenía plan y nadie marcó
+     pendiente  hoy o futuro con plan, todavía sin marcar
+
+   Solo `entrenado` y `libre` se escriben; `fallado` lo produce el paso del tiempo, para que el
+   usuario nunca tenga que registrar un fracaso. */
 const FREE_PRESETS=["Con un amigo","Rutina exprés","Cardio","Deporte","Otro gimnasio","Caminata"];
-function freeOf(iso){return (S.free||{})[iso]||null;}
+function dayRecord(iso){return (S.days||{})[iso]||null;}
+function esDescanso(iso){
+  const p=String(iso).split("-");
+  const dayId=DAY_IDS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
+  const day=activeRoutine().days[dayId];
+  return !day||day.rest||!day.exercises.length;
+}
+function dayState(iso){
+  const r=dayRecord(iso);
+  if(r&&r.s==="free")return "libre";
+  if(r&&r.s==="done")return "entrenado";
+  if(esDescanso(iso))return "descanso";
+  return iso<todayKey()?"fallado":"pendiente";
+}
 /* La etiqueta se pinta dentro de atributos HTML (title, data-cal); se limpia aquí, en el único
    punto por donde entra, en vez de escapar en cada sitio donde se muestra. */
-function setFree(iso,label){S.free=S.free||{};S.free[iso]=String(label).replace(/[<>"&]/g,"").trim()||"Sesión libre";save();}
-function clearFree(iso){if(S.free)delete S.free[iso];save();}
+function marcarEntrenado(iso){S.days=S.days||{};S.days[iso]={s:"done"};save();}
+function marcarLibre(iso,label){
+  S.days=S.days||{};
+  S.days[iso]={s:"free",label:String(label).replace(/[<>"&]/g,"").trim()||"Sesión libre"};
+  save();
+}
+function desmarcarDia(iso){if(S.days)delete S.days[iso];save();}
+/* Compatibilidad con el código que aún pregunta por sesiones libres por su nombre viejo. */
+function freeOf(iso){const r=dayRecord(iso);return r&&r.s==="free"?(r.label||"Sesión libre"):null;}
+function setFree(iso,label){marcarLibre(iso,label);}
+function clearFree(iso){if(freeOf(iso))desmarcarDia(iso);}
 function dayProgress(dayId){
   const day=activeRoutine().days[dayId];
   if(!day||day.rest||!day.exercises.length)return 0;
@@ -1167,6 +1239,7 @@ function renderHoy(){
       ${pasado?`Estás completando el <b style="color:var(--zinc-300)">${fechaLarga(fechaSel)}</b>; así queda en el calendario.`
               :`Este día aún no llega: lo que marques quedará guardado el <b>${fechaLarga(fechaSel)}</b>.`}</div>`;
   }
+  h+=markCard(fechaSel);
   h+=measureReminderBanner();
 
   if(day.rest){
@@ -1216,6 +1289,25 @@ function renderHoy(){
 }
 /* Tarjeta de "entrené por fuera". Aparece en todos los días —también en los de descanso, que es
    justo cuando más se usa— y guarda la sesión en la fecha que se esté viendo, igual que los checks. */
+/* ---------- Tarjeta de marcado del día (rediseño v2) ----------
+   El CTA que enciende el día. Es la acción principal de la app: por eso es lo único de la
+   pantalla con tratamiento de botón primario, y por eso funciona igual en un día de descanso
+   (entrenar en descanso suma sesión, no rompe nada). */
+function markCard(iso){
+  const e=dayState(iso);
+  const marcado=e==="entrenado"||e==="libre";
+  const et=e==="libre"?freeOf(iso):null;
+  return `<div class="markcard${marcado?" on":""}" id="markCard" data-iso="${iso}">
+    <div class="mk-ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        ${marcado?`<path d="M20 6L9 17l-5-5"/>`:`<path d="M12 5v14M5 12h14"/>`}</svg></div>
+    <div style="flex:1;min-width:0">
+      <div class="h3" style="font-size:14px">${marcado?(et?`Entrenaste por fuera`:`Día entrenado`):"Marcar como entrenado"}</div>
+      <div class="sub" style="font-size:11px;margin-top:2px">${marcado?(et||"Cuenta en tu racha y en el calendario"):"Un toque. No hace falta tildar los ejercicios."}</div>
+    </div>
+    <button class="mk-btn" id="mkToggle" title="${marcado?"Quitar la marca":"Marcar el día"}" aria-label="${marcado?"Quitar la marca":"Marcar el día"}">${marcado?"Quitar":"Entrené"}</button>
+  </div>`;
+}
 function freeSessionCard(iso){
   const lib=freeOf(iso);
   return `<div class="freecard${lib?" on":""}" id="freeCard" data-iso="${iso}">
@@ -1229,7 +1321,7 @@ function freeSessionCard(iso){
     <span style="flex:none;color:var(--zinc-500)">${IC.chevron}</span></div>`;
 }
 /* Hoja de la sesión libre: pastillas rápidas + campo libre. La etiqueta es solo descriptiva;
-   lo que cuenta para la asistencia es que la fecha exista en S.free. */
+   lo que cuenta para la asistencia es que el dia quede marcado en S.days. */
 function openFreeSheet(iso){
   const cur=freeOf(iso);
   openSheet2(`<div class="sheet-grab"></div>
@@ -1293,6 +1385,13 @@ function setCheck(i,done){
 function bindHoy(){
   const mn=$("#measNotice");if(mn)mn.onclick=()=>{mzOpen=true;go("progreso");}; // el aviso lleva a la tarjeta ya abierta
   const fc=$("#freeCard");if(fc)fc.onclick=()=>openFreeSheet(fc.dataset.iso);
+  const mk=$("#mkToggle");if(mk)mk.onclick=()=>{
+    const iso=$("#markCard").dataset.iso;
+    const marcado=dayState(iso)==="entrenado"||dayState(iso)==="libre";
+    if(marcado){desmarcarDia(iso);toast("Marca quitada");}
+    else{marcarEntrenado(iso);toast("Día marcado");try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}}
+    renderHoy();
+  };
   const wp=$("#wkPrev");if(wp)wp.onclick=()=>{weekOffset++;renderHoy();};
   const wn=$("#wkNext");if(wn&&!wn.disabled)wn.onclick=()=>{weekOffset=Math.max(0,weekOffset-1);renderHoy();};
   const wt=$("#wkToday");if(wt)wt.onclick=()=>{weekOffset=0;selectedDay=jsDayToId();renderHoy();};
@@ -1756,6 +1855,9 @@ const DAY_IDS=["dom","lun","mar","mie","jue","vie","sab"];
 const MESES_LARGO=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 let calYM=null; // {y,m} del mes que se está viendo; null = mes actual
 function isoOf(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+/* Estadística de un día para el calendario. `estado` es la verdad (ver dayState); `done`/`total`
+   siguen existiendo solo para pintar el anillo de avance de la sesión, no para decidir si el
+   día cuenta como entrenado. */
 function dayStats(iso){
   const p=iso.split("-");
   const dayId=DAY_IDS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
@@ -1765,22 +1867,23 @@ function dayStats(iso){
   let done=0;
   const pre=iso+"|";
   Object.keys(S.checks||{}).forEach(k=>{if(S.checks[k]&&k.indexOf(pre)===0)done++;});
-  const logged=(S.history||[]).some(l=>l.date===iso);
+  const estado=dayState(iso);
   const free=freeOf(iso);
-  const routine=done>0||logged;
-  return {rest,total,done,logged,free,routine,trained:routine||!!free,
+  return {rest,total,done,free,estado,
+    trained:estado==="entrenado"||estado==="libre",
+    fallado:estado==="fallado",
     full:total>0&&done>=total};
 }
+/* Racha: días consecutivos hacia atrás sin un fallo. El descanso no suma ni rompe — es parte del
+   plan, y castigarlo haría que la racha premiara sobreentrenar. Un día pendiente de hoy tampoco
+   rompe: todavía hay tiempo de entrenar. */
 function currentStreak(){
   const d=new Date();let n=0;
   for(let i=0;i<400;i++){
-    const st=dayStats(isoOf(d));
-    if(st.rest){
-      if(st.trained)n++;   // entrenar en un día de descanso suma sesión, pero no fuerza a nada
-    }else{
-      if(st.trained)n++;
-      else if(i>0)break;   // hoy pendiente no rompe la racha
-    }
+    const e=dayState(isoOf(d));
+    if(e==="entrenado"||e==="libre")n++;
+    else if(e==="fallado")break;
+    else if(e==="pendiente"&&i>0)break;   // hoy pendiente no rompe; ayer pendiente ya es fallado
     d.setDate(d.getDate()-1);
   }
   return n;
@@ -1800,14 +1903,20 @@ function attendanceBlock(){
     const future=iso>todayIso;
     /* Un día de descanso en el que sí entrenaste entra también en el denominador: si no, el
        porcentaje de cumplimiento se pasaría del 100 %. */
-    if(!future&&(!st.rest||st.trained))programados++;
+    if(!future&&(st.estado!=="descanso"||st.trained))programados++;
     if(st.trained)hechos++;
-    let cls=st.trained?(st.full?"full":(st.routine?"part":"free")):(st.rest?"rest":(future?"":"miss"));
+    /* El día marcado se pinta lleno aunque queden ejercicios sin tildar: desde el rediseño v2 la
+       marca del día es la verdad y los checks son solo una ayuda durante la sesión. */
+    let cls=st.estado==="entrenado"?"full"
+      :st.estado==="libre"?"free"
+      :st.estado==="descanso"?"rest"
+      :st.estado==="fallado"?"miss":"";
     if(future)cls+=" fut";
     if(iso===todayIso)cls+=" today";
-    const detalle=st.rest&&!st.trained?" · descanso"
-      :st.trained?(st.routine?` · ${st.done}/${st.total} ejercicios`:"")+(st.free?` · libre: ${st.free}`:"")
-      :future?" · pendiente":" · sin registro";
+    const detalle=st.estado==="descanso"?" · descanso"
+      :st.estado==="entrenado"?(st.done?` · ${st.done}/${st.total} ejercicios`:" · entrenado")
+      :st.estado==="libre"?` · libre: ${st.free}`
+      :st.estado==="fallado"?" · sin registro":" · pendiente";
     const info=`${fechaLarga(iso)}${detalle}`;
     cells+=`<div class="calcell ${cls}" data-cal="${info}" data-iso="${iso}" title="${info}">${d}</div>`;
   }
@@ -2528,6 +2637,35 @@ let toastT;
 function toast(msg){$("#toastMsg").textContent=msg;$("#toast").classList.add("show");
   clearTimeout(toastT);toastT=setTimeout(()=>$("#toast").classList.remove("show"),1900);}
 
+/* ---------- Rescate de datos de la versión anterior (v2) ----------
+   El rediseño arranca con clave limpia (`stickfit-v2`) por decisión del Señor Stick, pero el
+   perfil, el peso corporal y las medidas son datos del cuerpo, no del entrenamiento: recapturarlos
+   a mano es tedioso y parte no se podría reconstruir. Se ofrece UNA vez y no vuelve. */
+function ofrecerRescate(){
+  if(S.rescateOfrecido)return;
+  const v=hayDatosV1();
+  if(!v){descartarRescate();return;}
+  const n=(v.weightLog||[]).length, m=(v.measures||[]).length, p=v.profile?1:0;
+  const piezas=[];
+  if(p)piezas.push("tu perfil de nutrición");
+  if(n)piezas.push(`${n} ${n===1?"registro":"registros"} de peso`);
+  if(m)piezas.push(`${m} ${m===1?"toma":"tomas"} de medidas`);
+  openSheet(`<div class="sheet-grab"></div>
+    <div class="sheet-head"><div>
+      <div class="h2">Encontré tus datos anteriores</div>
+      <div class="sub" style="font-size:11px;margin-top:3px">De la versión anterior de STICK FIT</div>
+    </div></div>
+    <p class="sub" style="margin:10px 0 0;font-size:12px">
+      Puedo traer <b style="color:var(--zinc-300)">${piezas.join(", ")}</b>.
+      El historial de entrenamiento y las rutinas viejas no se traen: esta versión arranca limpia.</p>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="btn-secondary" style="flex:1" id="rsNo">Empezar limpio</button>
+      <button class="btn-primary" style="flex:1.4" id="rsYes">Traer mis datos</button>
+    </div>`);
+  $("#rsYes").onclick=()=>{rescatarV1();closeSheet();toast("Datos recuperados");go(curView||"hoy");};
+  $("#rsNo").onclick=()=>{descartarRescate();closeSheet();};
+}
+
 /* ---------- Portada ---------- */
 $("#enterBtn").onclick=()=>{S.onboarded=true;save();$("#cover").style.display="none";$("#app").style.display="block";go("hoy");renderDock(true);};
 $("#coverBtn").onclick=()=>{$("#cover").style.display="flex";$("#app").style.display="none";};
@@ -2536,6 +2674,11 @@ $("#coverBtn").onclick=()=>{$("#cover").style.display="flex";$("#app").style.dis
 montarDock();
 if(S.onboarded){$("#cover").style.display="none";$("#app").style.display="block";go("hoy");renderDock(true);}
 else{go("hoy");}
+/* El rescate se ofrece tras montar la vista, para que la hoja caiga sobre la app ya pintada.
+   Si se cierra por el scrim NO se marca como ofrecido y vuelve a preguntar en el siguiente
+   arranque: es preferible repetir la pregunta a que un toque accidental deje los datos
+   inalcanzables. La entrada manual en Perfil (etapa 2) cerrará este flanco. */
+setTimeout(ofrecerRescate,400);
 
 /* ---------- Anti-zoom (familia Stick) ----------
    Safari en iOS IGNORA `user-scalable=no` y `maximum-scale` desde iOS 10, así

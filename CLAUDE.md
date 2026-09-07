@@ -1,5 +1,136 @@
 # STICK FIT — Bitácora del proyecto
 
+## Rediseño v2.0.0 — de bitácora de cargas a app de adherencia (2026-09-07)
+
+**Origen.** El Señor Stick declaró que **no usa el registro de series y pesos**: lo llamó
+impráctico. Diagnóstico acordado en el grill: no era impráctico por existir, sino por su
+granularidad — 4 filas por serie × 7 ejercicios son 28 campos por sesión. La app pasa a girar
+alrededor de **tener rutinas y marcar qué días se entrenó**, no de documentar cargas.
+
+**Objetivo nuevo:** subir masa muscular. Sustituye al anterior "físico atlético, magro y funcional".
+No le gusta entrenar pierna; quiere priorizar brazos. Ambas cosas están resueltas en la rutina, no
+ignoradas.
+
+### Las 13 decisiones (cerradas en grill, no re-litigar sin discusión)
+
+1. **Un peso por ejercicio**, opcional, pre-cargado con el de la última vez, editable con +/-.
+   Muere el desglose serie por serie, y con él el 1RM Epley como eje. Sobrevive lo único que la
+   hipertrofia necesita: saber si el peso de esta semana supera al de la pasada.
+2. **El día es la verdad del calendario.** Las casillas por ejercicio son ayuda durante la sesión y
+   no condicionan el registro de asistencia: se puede entrenar sin marcar un solo ejercicio.
+   Motivo: si el calendario depende de la disciplina de marcar, un día real sin ganas de tocar el
+   teléfono sale como día perdido y el historial miente.
+3. **Cuatro estados de día:** `Descanso` (lo dicta la rutina), `Entrenado` (un toque), `Libre`
+   (entrenó otra cosa), `Fallado` (**automático**: día pasado con plan y sin marca). El Señor Stick
+   nunca marca un fracaso — lo hace el paso del tiempo.
+4. **Hipertrofia con base de fuerza.** Primer movimiento del día en 5-8; el resto en 8-15. Volumen
+   12-18 series/grupo/semana. Nutrición por defecto en **superávit magro**, no superávit a secas.
+5. Domingo descanso. Hombro y brazo reciben trabajo directo **también** en los días de pecho y
+   espalda (laterales y face pull el lunes; curl y tríceps el viernes), para darles frecuencia 2 sin
+   gastar un sexto día de entrenamiento.
+6. **Martes pierna completa; sábado pierna corta + brazo.** La pierna conserva frecuencia 2 porque
+   es la mayor masa del cuerpo y quitarla se paga en proporción, pero el sábado deja de ser "día de
+   pierna": son 2-3 movimientos al principio, con energía, y el resto es brazo. El peaje va primero
+   justamente para que no se salte.
+7. **Sigue siendo un solo `index.html` sin build** (ratifica la decisión nº 1 original) y sigue en
+   **GitHub Pages sirviendo `main` directo, sin workflows**. La mejora de animación no viene de
+   migrar a React+Motion sino de **View Transitions API**, muelles con `linear()` y
+   `@starting-style`. Condición explícita del Señor Stick: "B si y solo si seguimos como estamos
+   GitHub Pages".
+8. **Dock:** `Hoy · Calendario · Rutinas · Ejercicios · Nutrición`. "Progreso" se elimina como
+   concepto — su nombre era tan vago que todo cabía, y por eso todo terminó ahí. Peso corporal,
+   medidas y respaldo se van a un **Perfil** en el header, construido con el centro de ajustes
+   canónico del sistema (§11), no inventado aquí.
+9. **"Hoy" es solo hoy.** Fuera las flechas de semana, las siete píldoras de día y el concepto de
+   `weekOffset` en esa vista. Marcar días pasados se hace **solo** desde Calendario.
+10. **Clave nueva `stickfit-v2`, sin migración.** Decisión del Señor Stick contra mi recomendación
+    de migrar; la acepté porque la migración correría a ciegas en su teléfono, donde no puedo
+    probarla, y una migración con un fallo es peor que empezar limpio. Consecuencia asumida: la
+    racha y el historial de asistencia arrancan de cero. **`stickfit-v1` no se borra**: queda
+    intacto y recuperable.
+11. **Rescate único y opcional** al primer arranque: si detecta `stickfit-v1`, ofrece traer solo
+    **perfil, peso corporal y medidas** — nunca rutinas, checks ni historial de series. Se muestra
+    una vez.
+12. **Tira de semana de solo lectura en Hoy** (siete puntos + racha, sin navegación ni lógica de
+    fechas). Resuelve el problema de que el CTA vive en Hoy y su consecuencia vive en Calendario:
+    la acción tiene efecto visible donde ocurrió. Reparto de tiempos de la §17: pulsación **140ms**
+    (respuesta a gesto), consecuencias **~400ms decelerando y sin rebote**.
+13. **Entrega en tres etapas con checkpoint:** (1) datos y rutina · (2) navegación y pantallas ·
+    (3) movimiento.
+
+### La rutina nueva
+
+| Día | Sesión |
+|---|---|
+| Lun | Pecho -> Espalda + laterales y face pull |
+| Mar | Pierna completa |
+| Mié | Brazo y hombro (día dedicado) |
+| Jue | Descanso |
+| Vie | Espalda -> Pecho + curl y tríceps |
+| Sáb | Pierna corta (cuádriceps · femoral · gemelo) -> Brazo |
+| Dom | Descanso |
+
+El orden invertido de lunes (pecho->espalda) y viernes (espalda->pecho) es intencional: ninguno de
+los dos grupos se entrena siempre cansado.
+
+### Etapa 1 COMPLETA y verificada en vivo (2026-09-07)
+
+Lo que entró en el código:
+
+- **Clave `stickfit-v2`** con `estadoInicial()` y red de seguridad: si un respaldo viejo importado
+  trae una clave ausente, se rellena desde el estado base en vez de reventar.
+- **`S.days[iso] = {s:"done"|"free", label?}`** es la nueva verdad de la asistencia. `S.checks`
+  sigue existiendo pero ya **no** decide si un día cuenta como entrenado.
+- **`dayState(iso)`** resuelve los cinco casos: `libre`, `entrenado`, `descanso`, `fallado`
+  (pasado con plan y sin marca) y `pendiente` (hoy o futuro). `freeOf`/`setFree`/`clearFree`
+  quedan como envoltorios de compatibilidad sobre el modelo nuevo.
+- **`currentStreak()` reescrita:** el descanso ni suma ni rompe (castigarlo premiaría
+  sobreentrenar); un `fallado` rompe; `pendiente` de hoy no rompe.
+- **`markCard()`** — el CTA "Entrené" en Hoy, con su CSS. Un día marcado se pinta lleno en el
+  calendario aunque queden ejercicios sin tildar.
+- **`ofrecerRescate()`** — hoja de rescate único desde `stickfit-v1`: trae perfil, peso corporal
+  con su meta, y medidas. **No** trae historial, rutinas ni checks.
+- **Rutina `masa-brazos` («Masa · Brazos»)**, `SEED_VERSION` a 1, caché SW a `stickfit-v19`.
+- Portada: el eslogan pasa de "protocolo de fuerza / atlético y magro" a masa y constancia.
+
+**Volumen semanal medido en vivo** (5 días de entreno, 99 series):
+Pecho 13 · Espalda 15 · Hombro 17 · Pierna 28 (20 de cuádriceps/femoral + 8 de gemelo) ·
+Brazo 26 · Core 6.
+
+> **El `weeklyVolume()` agrupa bíceps y tríceps como un solo "Brazo" y por eso marca 26, fuera de
+> la banda 10-20.** No es exceso: son **13 de bíceps y 13 de tríceps**, cada uno dentro de banda.
+> La banda por grupo no sabe representar un split bíceps/tríceps. Pendiente decidir si se parte el
+> grupo o si se anota la excepción.
+
+**Core entró después de la verificación:** la rutina salía con 0 series de core. Se añadió plancha
+(martes) y elevación de piernas colgado (sábado) — frecuencia 2, 6 series, sin alargar la sesión.
+
+**Dos defectos corregidos durante la verificación en vivo:**
+1. Un día marcado anunciaba " · 0/6 ejercicios" en el calendario. Contradice la decisión 2: la
+   marca es la verdad. Ahora dice " · entrenado" cuando no hay ejercicios tildados.
+2. `.markcard.on .mk-btn` usaba `--sup-2`, que en modo claro es `rgba(255,255,255,.92)`: el botón
+   "Quitar" se leía como un CTA primario blanco sobre la tarjeta esmeralda. Pasó a secundario sin
+   relleno.
+
+El override de tema se escribió desde el principio re-declarando el estado activo
+(`html.light .markcard.on`), que es la trampa de especificidad que mordió a `.daypill` en v1.19.
+Verificado en vivo a 375×812 en oscuro y claro, con la marca persistiendo al recargar.
+
+**Pendiente de la etapa 2:** el campo único de peso por ejercicio (hoy sigue abriendo la hoja
+serie-por-serie), quitar la barra de semana y las píldoras de día de Hoy, el dock a Calendario,
+el Perfil, y la entrada manual al rescate (hoy, si la hoja se cierra por el scrim, vuelve a
+preguntar en el siguiente arranque — se eligió repetir la pregunta antes que dejar los datos
+inalcanzables por un toque accidental).
+
+### Qué queda derogado de la versión anterior
+
+- La decisión nº 6 vieja ("Split 4 días Torso/Pierna") y la nº 10 ("registro de peso/reps con
+  historial") ya no rigen.
+- El objetivo declarado deja de ser "físico atlético, magro y funcional --no de culturista--" y pasa
+  a ser **masa muscular con base de fuerza**.
+- La vista "Progreso" deja de existir.
+
+
 ## Pantalla de carga unificada (2026-08-24)
 
 Regla del Señor Stick: **todas las apps de la familia comparten la misma animación de carga**, la de
