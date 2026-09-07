@@ -175,6 +175,46 @@ repeticiones y esas ya no se guardan.
 Verificado en vivo a 375×812, recorriendo las cinco pestañas y el Perfil sin un solo error de
 consola, en oscuro y claro.
 
+### Auto-llenado del día y catálogo de 82 ejercicios (2026-09-07)
+
+Dos peticiones del Señor Stick, más una regla suya que casi vuelvo a romper.
+
+**1. Marcar todos los ejercicios llena el día.** `autoMarcarSiCompleto()`: al llegar al 100 %, el
+día se marca solo. **Solo enciende, nunca apaga** — destildar un ejercicio después no borra un
+entrenamiento que sí ocurrió. No contradice la decisión 2: el día sigue siendo la verdad y se puede
+marcar sin tildar nada; esto solo añade el camino inverso.
+
+**2. El catálogo pasa de 32 a 82 ejercicios** (Pecho 12 · Espalda 15 · Pierna 21 · Hombro 10 ·
+Brazo 13 · Core 11), todos con ejecución, errores y tip, y usando **solo las 14 claves de músculo
+del diagrama SVG** — una clave inventada no resaltaría nada en la ficha. Verificado en vivo: cero
+ids duplicados, cero nombres duplicados, cero claves inválidas, cero fichas incompletas.
+
+Con 82 ejercicios la lista del selector mide más de 6.000 px, así que **buscar a ojo dejó de ser
+viable**: el filtro pasa a mirar nombre, músculo, equipo y grupo (`normalizar()` quita tildes, para
+que "triceps" encuentre "tríceps"), y se añaden chips de grupo. El mismo criterio se aplicó al
+buscador de la vista Ejercicios, que buscaba solo por nombre.
+
+**3. La regla del scroll (v1.13.0), que había roto en tres sitios.** El Señor Stick avisó a mitad
+del trabajo. Nada que se toque durante una sesión puede llamar a `renderHoy()`: reconstruir el
+`innerHTML` relanza el escalonado de toda la lista, mata la animación del elemento que cambió y
+**salta el scroll**. Yo la había roto al guardar un peso, al quitarlo y al desmarcar el día.
+
+Se añadieron tres funciones de repintado en sitio: **`pintarMarca(iso,animar)`** (tira de semana +
+tarjeta), **`pintarFilaPeso(i)`** (solo el botón y los metadatos de una fila, sin sustituir el nodo
+para no relanzarle la animación de entrada) y **`bindMarkCard()`**. `celebrarMarca()` quedó
+absorbida por `pintarMarca`.
+
+> **Defecto que solo apareció midiendo:** aun sin re-renderizar, el scroll se movía **17 px** al
+> marcar. Causa: la tarjeta medía 99 px sin marcar y 82 px marcada, y al encoger empujaba la lista.
+> Resuelto con `min-height:99px`. **Un cambio de estado no puede cambiar la altura de su propio
+> contenedor** — la lección general de este defecto.
+
+Verificado en vivo: **0 px de movimiento** al marcar cada uno de los seis ejercicios, al completar
+el día y al guardar un peso. Sin desbordamiento horizontal en las seis vistas × dos temas, y sin
+un solo error de consola. Caché SW → `stickfit-v21`.
+
+También se eliminó la regla CSS `.week`, huérfana desde que Hoy perdió las píldoras de día.
+
 ### Qué queda derogado de la versión anterior
 
 - La decisión nº 6 vieja ("Split 4 días Torso/Pierna") y la nº 10 ("registro de peso/reps con

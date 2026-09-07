@@ -462,7 +462,6 @@ html.light .ex-log.logged{background:rgba(5,150,105,.10);border-color:rgba(5,150
   background:rgba(255,255,255,.10);border:1px solid var(--brd);color:var(--tinta);
   transition:transform .2s var(--ease)}
 .wk-today:active{transform:scale(.94)}
-.week{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px}
 .daypill{flex:none;min-width:66px;border-radius:999px;padding:10px 6px;text-align:center;cursor:pointer;
   background:rgba(255,255,255,.05);border:1px solid var(--v-borde);transition:.2s var(--ease);position:relative}
 html.light .daypill{background:rgba(255,255,255,.72)}
@@ -559,6 +558,7 @@ html.light .wd.on .wdd{background:#059669}
    `.markcard.on` y, al ir después en el archivo, la vencerían. Por eso el estado activo se
    re-declara como `html.light .markcard.on` — el mismo defecto que ya mordió a .daypill en v1.19. */
 .markcard{display:flex;align-items:center;gap:12px;padding:14px 15px;border-radius:18px;margin-top:16px;
+  min-height:99px;box-sizing:border-box;
   background:rgba(255,255,255,.05);border:1px solid var(--v-borde);
   backdrop-filter:var(--v-blur);-webkit-backdrop-filter:var(--v-blur);
   transition:background var(--t-menu) var(--ease),border-color var(--t-menu) var(--ease)}
@@ -1042,6 +1042,227 @@ const SEED_EX=[
     ["Tumbado, zona lumbar pegada al suelo.","Eleva piernas y hombros formando una C.","Mantén tensión respirando."],
     ["Despegar la lumbar del suelo.","Piernas demasiado altas por facilidad."],
     ["Baja piernas para más dificultad manteniendo la lumbar pegada."]),
+
+  /* ============================================================
+     AMPLIACIÓN DEL CATÁLOGO (2026-09-07)
+     ============================================================
+     El catálogo pasa de 32 a 82 ejercicios para que armar rutinas propias no obligue a repetir
+     siempre los mismos movimientos. Se respetan las 14 claves de músculo del diagrama SVG
+     (abdomen, antebrazo, biceps, cuadriceps, deltoides, dorsal, gemelo, gluteo, isquios, lumbar,
+     oblicuo, pecho, trapecio, triceps): una clave inventada no resaltaría nada en la ficha.
+     Rangos en clave de hipertrofia (8-15), que es el objetivo vigente. */
+
+  // ---- PECHO ----
+  ex("press-banca-mancuernas","Press de banca con mancuernas","Pecho",["pecho","triceps","deltoides"],4,"8-12","Mancuernas",
+    ["Tumbado, mancuernas a los lados del pecho y muñecas firmes.","Empuja hasta casi extender, sin chocarlas arriba.","Baja controlado hasta sentir estiramiento."],
+    ["Bajar más de lo que el hombro aguanta.","Arquear la espalda para levantar más peso."],
+    ["Dan más recorrido que la barra: aprovéchalo bajando profundo pero sin dolor."]),
+  ex("press-declinado","Press declinado","Pecho",["pecho","triceps"],3,"8-12","Barra/Mancuernas",
+    ["Banco declinado, pies bien fijados.","Baja la barra a la parte baja del pecho.","Empuja sin bloquear del todo el codo."],
+    ["Declinar demasiado y convertirlo en un press de tríceps.","Soltar el aire arriba y perder la tensión del torso."],
+    ["Trabaja la porción baja del pectoral, la que marca el borde inferior."]),
+  ex("cruce-poleas","Cruce de poleas","Pecho",["pecho"],3,"12-15","Poleas",
+    ["De pie entre dos poleas altas, un pie adelante.","Junta las manos al frente describiendo un arco.","Vuelve controlando el estiramiento."],
+    ["Doblar y estirar el codo: eso lo vuelve un press.","Usar tanto peso que el torso se vaya hacia delante."],
+    ["Mantén el codo con una flexión fija: el movimiento sale del hombro."]),
+  ex("press-maquina-pecho","Press de pecho en máquina","Pecho",["pecho","triceps","deltoides"],3,"10-12","Máquina",
+    ["Ajusta el asiento para que las manos queden a la altura del pecho.","Empuja hasta casi extender.","Vuelve despacio sin dejar caer la placa."],
+    ["Asiento demasiado alto o bajo: cambia el ángulo de trabajo.","Soltar la placa de golpe al volver."],
+    ["Buena opción para llevar el pecho al fallo con seguridad, sin depender de un ayudante."]),
+  ex("peck-deck","Contractora (peck deck)","Pecho",["pecho"],3,"12-15","Máquina",
+    ["Espalda pegada al respaldo, codos a la altura del hombro.","Junta los brazos al frente y aprieta un segundo.","Abre controlando hasta sentir el pectoral."],
+    ["Abrir más allá de la línea del cuerpo y forzar el hombro.","Ayudarse con el impulso del tronco."],
+    ["Es el aislamiento más limpio de pecho: prioriza el apretón, no el peso."]),
+  ex("pullover-mancuerna","Pullover con mancuerna","Pecho",["pecho","dorsal","triceps"],3,"10-12","Mancuerna",
+    ["Tumbado, una mancuerna sujeta con las dos manos sobre el pecho.","Llévala por detrás de la cabeza con el codo semiflexionado.","Vuelve al pecho sin perder la tensión."],
+    ["Bajar tanto que se arquee la lumbar.","Convertirlo en una extensión de tríceps."],
+    ["Trabaja pecho y dorsal a la vez: buen cierre para un día de torso."]),
+  ex("flexiones-diamante","Flexiones diamante","Pecho",["triceps","pecho"],3,"10-15","Peso corporal",
+    ["Manos juntas formando un triángulo bajo el pecho.","Baja con los codos pegados al cuerpo.","Empuja hasta extender sin arquear la cadera."],
+    ["Abrir los codos y perder el trabajo de tríceps.","Dejar caer la cadera."],
+    ["Más tríceps que pecho: sirve como remate al final del día de brazo."]),
+
+  // ---- ESPALDA ----
+  ex("jalon-supino","Jalón al pecho supino","Espalda",["dorsal","biceps"],3,"10-12","Polea",
+    ["Agarre supino a la anchura de los hombros.","Lleva la barra al pecho bajando los codos.","Sube controlando sin soltar la escápula."],
+    ["Echar el torso muy atrás y convertirlo en remo.","Tirar solo con los brazos."],
+    ["El agarre supino da más recorrido al dorsal bajo y suma bíceps."]),
+  ex("jalon-neutro","Jalón agarre neutro","Espalda",["dorsal","biceps","trapecio"],3,"10-12","Polea",
+    ["Agarre en V, manos enfrentadas.","Tira llevando los codos hacia las caderas.","Sube dejando estirar el dorsal arriba."],
+    ["Encoger los hombros al tirar.","Balancear el tronco para completar la repetición."],
+    ["El agarre neutro es el más amable con el hombro: útil si el prono te molesta."]),
+  ex("remo-sentado-polea","Remo sentado en polea","Espalda",["dorsal","trapecio","biceps"],4,"10-12","Polea",
+    ["Sentado, rodillas algo flexionadas y pecho alto.","Tira del agarre al abdomen juntando escápulas.","Vuelve estirando sin redondear la espalda."],
+    ["Mecerse hacia atrás para mover el peso.","Redondear la lumbar en el estiramiento."],
+    ["Aguanta medio segundo con las escápulas juntas: ahí está el trabajo."]),
+  ex("remo-t","Remo en T","Espalda",["dorsal","trapecio","lumbar","biceps"],4,"8-12","Barra T",
+    ["Torso inclinado, pecho apoyado si la máquina lo permite.","Tira del agarre hacia el abdomen.","Baja controlado sin dejar caer el peso."],
+    ["Levantar el torso al tirar.","Usar tanto peso que la lumbar haga el trabajo."],
+    ["Con el pecho apoyado quitas la lumbar de la ecuación y aíslas mejor la espalda."]),
+  ex("remo-maquina","Remo en máquina","Espalda",["dorsal","trapecio","biceps"],3,"10-12","Máquina",
+    ["Pecho contra el respaldo, pies firmes.","Tira de los agarres llevando los codos atrás.","Vuelve despacio hasta estirar."],
+    ["Despegar el pecho del respaldo.","Acortar el recorrido por exceso de peso."],
+    ["Al eliminar el equilibrio puedes ir más pesado con seguridad."]),
+  ex("remo-pendlay","Remo Pendlay","Espalda",["dorsal","trapecio","lumbar"],4,"6-8","Barra",
+    ["Torso paralelo al suelo, barra en el piso en cada repetición.","Tira explosivo hasta el abdomen.","Devuelve la barra al suelo y recoloca."],
+    ["Subir el torso durante el tirón.","Encadenar repeticiones sin apoyar la barra."],
+    ["Cada repetición arranca de cero: es el remo más pesado y estricto."]),
+  ex("pullover-polea","Pullover en polea","Espalda",["dorsal","triceps"],3,"12-15","Polea",
+    ["De pie frente a una polea alta, codos semiflexionados.","Baja la barra en arco hasta los muslos.","Vuelve arriba dejando estirar el dorsal."],
+    ["Flexionar el codo y convertirlo en jalón.","Acercarse tanto que se pierda la tensión arriba."],
+    ["Es el único aislamiento real de dorsal: sin bíceps de por medio."]),
+  ex("encogimientos","Encogimientos","Espalda",["trapecio"],4,"12-15","Mancuernas/Barra",
+    ["De pie, peso colgando a los lados con los brazos rectos.","Sube los hombros hacia las orejas.","Baja controlado hasta estirar el trapecio."],
+    ["Rotar los hombros: no aporta y castiga la articulación.","Doblar los codos para ayudarse."],
+    ["Aguanta arriba un segundo; el recorrido es corto, la tensión lo compensa."]),
+  ex("hiperextensiones","Hiperextensiones","Espalda",["lumbar","gluteo","isquios"],3,"12-15","Banco romano",
+    ["Cadera apoyada en el soporte, cuerpo recto.","Baja doblando la cadera con la espalda neutra.","Sube hasta alinear el tronco, sin pasarte."],
+    ["Hiperextender la espalda arriba.","Redondear la lumbar al bajar."],
+    ["Sube hasta la línea del cuerpo y para: el arco de más no suma nada."]),
+
+  // ---- PIERNA ----
+  ex("sentadilla-frontal","Sentadilla frontal","Pierna",["cuadriceps","gluteo","abdomen"],4,"6-8","Barra",
+    ["Barra apoyada en los deltoides frontales, codos altos.","Baja manteniendo el torso vertical.","Sube empujando con el medio del pie."],
+    ["Dejar caer los codos: la barra rueda hacia delante.","Despegar los talones del suelo."],
+    ["Carga más el cuádriceps que la trasera y obliga a un torso más erguido."]),
+  ex("sentadilla-goblet","Sentadilla goblet","Pierna",["cuadriceps","gluteo"],3,"12-15","Mancuerna/Pesa rusa",
+    ["Sujeta una mancuerna vertical contra el pecho.","Baja entre las rodillas con el torso alto.","Sube apretando los glúteos arriba."],
+    ["Redondear la espalda alta al bajar.","Separar los codos del cuerpo."],
+    ["El contrapeso delante te deja bajar más profundo: buena para aprender el patrón."]),
+  ex("sentadilla-hack","Sentadilla hack","Pierna",["cuadriceps","gluteo"],3,"10-12","Máquina",
+    ["Espalda pegada al respaldo, pies a media plataforma.","Baja hasta que el muslo pase la paralela.","Sube sin bloquear la rodilla del todo."],
+    ["Despegar la lumbar del respaldo.","Poner los pies muy altos y perder cuádriceps."],
+    ["Con la espalda sostenida puedes llevar el cuádriceps al fallo sin riesgo."]),
+  ex("extension-cuadriceps","Extensión de cuádriceps","Pierna",["cuadriceps"],3,"12-15","Máquina",
+    ["Ajusta el respaldo para que la rodilla coincida con el eje.","Extiende hasta casi bloquear y aprieta.","Baja controlado sin soltar la placa."],
+    ["Lanzar la pierna con impulso.","Bajar el peso de golpe."],
+    ["Aguanta un segundo arriba: el pico de tensión está justo ahí."]),
+  ex("curl-femoral-tumbado","Curl femoral tumbado","Pierna",["isquios","gemelo"],3,"12-15","Máquina",
+    ["Tumbado boca abajo, rodillas fuera del borde.","Flexiona llevando el talón al glúteo.","Baja controlado sin extender del todo."],
+    ["Despegar la cadera del banco.","Usar impulso en el último tramo."],
+    ["Si la cadera se despega, baja el peso: es la señal de que el femoral ya no manda."]),
+  ex("curl-femoral-sentado","Curl femoral sentado","Pierna",["isquios"],3,"12-15","Máquina",
+    ["Sentado, rodillas alineadas con el eje y muslos sujetos.","Flexiona llevando los talones bajo el asiento.","Vuelve despacio hasta estirar."],
+    ["Dejar que la cadera se levante.","Acortar el recorrido."],
+    ["Con la cadera flexionada el femoral trabaja más estirado que tumbado."]),
+  ex("peso-muerto-sumo","Peso muerto sumo","Pierna",["gluteo","cuadriceps","isquios","lumbar","trapecio"],4,"5-8","Barra",
+    ["Pies anchos, puntas abiertas, manos dentro de las piernas.","Empuja el suelo con las caderas cerca de la barra.","Bloquea arriba apretando glúteos."],
+    ["Subir primero la cadera y dejar la barra atrás.","Redondear la espalda baja."],
+    ["Recorrido más corto que el convencional y más glúteo y cuádriceps."]),
+  ex("good-morning","Buenos días (good morning)","Pierna",["isquios","lumbar","gluteo"],3,"10-12","Barra",
+    ["Barra en la espalda alta, rodillas ligeramente flexionadas.","Lleva la cadera atrás bajando el torso.","Sube apretando glúteos con la espalda neutra."],
+    ["Redondear la espalda al bajar.","Ir demasiado pesado en un ejercicio de bisagra."],
+    ["Empieza muy ligero: la técnica manda por completo aquí."]),
+  ex("step-up","Subida al cajón (step up)","Pierna",["cuadriceps","gluteo"],3,"10-12","Cajón/Mancuernas",
+    ["Un pie completo sobre el cajón, torso alto.","Sube empujando con la pierna de arriba.","Baja controlado sin saltar."],
+    ["Impulsarse con la pierna de abajo.","Cajón tan alto que la cadera se tuerza."],
+    ["El pie de abajo solo acompaña: todo el trabajo sale del que está en el cajón."]),
+  ex("abductores","Abductores en máquina","Pierna",["gluteo"],3,"15-20","Máquina",
+    ["Sentado, almohadillas por fuera de los muslos.","Abre las piernas apretando el glúteo.","Vuelve controlado sin cerrar del todo."],
+    ["Echar el cuerpo atrás para mover más peso.","Volver de golpe."],
+    ["Inclina un poco el torso hacia delante: llega más al glúteo medio."]),
+  ex("aductores","Aductores en máquina","Pierna",["cuadriceps"],3,"15-20","Máquina",
+    ["Sentado, almohadillas por dentro de los muslos.","Cierra las piernas de forma controlada.","Abre despacio hasta sentir el estiramiento."],
+    ["Abrir más de lo que el aductor tolera.","Rebotar en el estiramiento."],
+    ["Suele descuidarse y es un estabilizador clave en sentadilla."]),
+  ex("gemelo-sentado","Gemelo sentado","Pierna",["gemelo"],4,"15-20","Máquina",
+    ["Sentado, almohadilla sobre los muslos y metatarso en el apoyo.","Sube el talón todo lo que puedas.","Baja hasta estirar por completo."],
+    ["Recorridos cortos y rápidos.","Rebotar abajo con el tendón."],
+    ["Con la rodilla flexionada trabaja el sóleo, que el gemelo de pie no alcanza."]),
+  ex("prensa-a-una-pierna","Prensa a una pierna","Pierna",["cuadriceps","gluteo","isquios"],3,"10-12","Máquina",
+    ["Un pie centrado en la plataforma, el otro apoyado fuera.","Baja hasta que la rodilla llegue al pecho.","Empuja sin bloquear la rodilla."],
+    ["Dejar que la rodilla se vaya hacia dentro.","Levantar la cadera del asiento abajo."],
+    ["Corrige descompensaciones entre piernas que la prensa normal esconde."]),
+
+  // ---- HOMBRO ----
+  ex("press-hombro-mancuernas","Press de hombro con mancuernas","Hombro",["deltoides","triceps"],4,"8-12","Mancuernas",
+    ["Sentado con respaldo, mancuernas a la altura de las orejas.","Empuja arriba sin chocarlas.","Baja hasta que el codo pase la línea del hombro."],
+    ["Arquear la lumbar para empujar más.","Bajar tan poco que el recorrido se pierda."],
+    ["Permiten una trayectoria más natural que la barra y suelen molestar menos al hombro."]),
+  ex("elevaciones-frontales","Elevaciones frontales","Hombro",["deltoides"],3,"12-15","Mancuernas/Disco",
+    ["De pie, peso delante de los muslos.","Sube con el brazo casi recto hasta la altura del hombro.","Baja controlado sin balancear."],
+    ["Usar impulso de cadera.","Subir por encima del hombro sin necesidad."],
+    ["El deltoides frontal ya trabaja mucho en los press: con poco volumen basta."]),
+  ex("pajaro","Pájaro (deltoides posterior)","Hombro",["deltoides","trapecio"],4,"15-20","Mancuernas",
+    ["Torso inclinado hacia delante, brazos colgando.","Abre los brazos a los lados con el codo fijo.","Baja despacio sin juntar del todo."],
+    ["Tirar con la espalda en vez del hombro.","Usar demasiado peso y balancear."],
+    ["Es el deltoides que casi nadie entrena y el que da anchura vista de perfil."]),
+  ex("remo-menton","Remo al mentón","Hombro",["deltoides","trapecio","biceps"],3,"12-15","Barra/Polea",
+    ["Agarre algo más ancho que los hombros.","Sube los codos por delante hasta la altura del pecho.","Baja controlado."],
+    ["Subir por encima del pecho y pinzar el hombro.","Agarre muy cerrado."],
+    ["Con agarre ancho y sin pasar del pecho es seguro; cerrado y alto, no."]),
+  ex("laterales-polea","Elevaciones laterales en polea","Hombro",["deltoides"],3,"12-15","Polea",
+    ["De pie de lado a una polea baja, agarre con la mano lejana.","Sube el brazo hasta la altura del hombro.","Baja resistiendo la vuelta."],
+    ["Encoger el trapecio al subir.","Girar el torso para ayudarse."],
+    ["La polea mantiene tensión abajo, donde la mancuerna la pierde por completo."]),
+  ex("press-militar-mancuerna-unilateral","Press de hombro a un brazo","Hombro",["deltoides","triceps","abdomen"],3,"10-12","Mancuerna",
+    ["De pie, una mancuerna a la altura del hombro.","Empuja arriba manteniendo el torso firme.","Baja controlado sin inclinarte."],
+    ["Inclinar el tronco al lado contrario.","Perder la tensión abdominal."],
+    ["El core trabaja fuerte para evitar que te inclines: es press y antiflexión lateral a la vez."]),
+
+  // ---- BRAZO ----
+  ex("curl-predicador","Curl en banco predicador","Brazo",["biceps","antebrazo"],3,"10-12","Barra Z/Mancuerna",
+    ["Brazos apoyados en el banco, axilas contra el borde.","Sube hasta contraer sin llegar a la vertical.","Baja hasta casi extender, controlando."],
+    ["Extender de golpe abajo y tirar del codo.","Despegar los brazos del apoyo."],
+    ["El apoyo elimina el balanceo: es el curl más estricto que hay."]),
+  ex("curl-concentrado","Curl concentrado","Brazo",["biceps"],3,"12-15","Mancuerna",
+    ["Sentado, codo apoyado en la cara interna del muslo.","Sube contrayendo el bíceps al máximo.","Baja despacio hasta extender."],
+    ["Mover el hombro para ayudarse.","Recortar el recorrido arriba."],
+    ["Gira la muñeca hacia fuera al llegar arriba: sube el pico del bíceps."]),
+  ex("curl-polea","Curl en polea baja","Brazo",["biceps","antebrazo"],3,"12-15","Polea",
+    ["De pie frente a la polea, codos pegados al cuerpo.","Sube contrayendo sin mover el codo.","Baja resistiendo hasta estirar."],
+    ["Adelantar los codos al subir.","Echar el torso atrás."],
+    ["Tensión constante en todo el recorrido, cosa que la barra no da."]),
+  ex("curl-inverso","Curl inverso","Brazo",["antebrazo","biceps"],3,"12-15","Barra Z",
+    ["Agarre prono a la anchura de los hombros.","Sube manteniendo la muñeca firme.","Baja controlado."],
+    ["Doblar la muñeca hacia atrás.","Usar el peso del curl normal: aquí toca menos."],
+    ["Es el que engrosa el antebrazo y el braquial, que empuja el bíceps hacia arriba."]),
+  ex("press-frances","Press francés","Brazo",["triceps"],3,"10-12","Barra Z",
+    ["Tumbado, barra sobre la frente con los codos apuntando arriba.","Baja doblando solo el codo.","Extiende sin bloquear del todo."],
+    ["Abrir los codos hacia los lados.","Mover el hombro y convertirlo en press."],
+    ["Los codos quedan quietos apuntando al techo: solo se mueve el antebrazo."]),
+  ex("extension-triceps-sobre-cabeza","Extensión de tríceps sobre la cabeza","Brazo",["triceps"],3,"12-15","Mancuerna/Polea",
+    ["Peso por detrás de la cabeza, codos altos y juntos.","Extiende hasta arriba sin bloquear.","Baja hasta sentir el estiramiento."],
+    ["Abrir los codos.","Arquear la lumbar para compensar."],
+    ["Con el brazo por encima de la cabeza estiras la porción larga, la que más volumen aporta."]),
+  ex("patada-triceps","Patada de tríceps","Brazo",["triceps"],3,"12-15","Mancuerna/Polea",
+    ["Torso inclinado, brazo pegado al costado y codo alto.","Extiende hacia atrás hasta la línea del cuerpo.","Vuelve controlado sin bajar el codo."],
+    ["Dejar caer el codo en cada repetición.","Usar impulso del hombro."],
+    ["El codo se queda clavado arriba: si baja, el ejercicio se pierde."]),
+  ex("fondos-maquina","Fondos en máquina asistida","Brazo",["triceps","pecho","deltoides"],3,"10-12","Máquina",
+    ["Agarra las barras con el torso ligeramente inclinado.","Baja hasta que el codo llegue a 90°.","Empuja hasta extender."],
+    ["Bajar más de lo que el hombro tolera.","Encoger los hombros arriba."],
+    ["Con torso vertical va a tríceps; inclinado, a pecho. Elige según el día."]),
+  ex("curl-martillo-cuerda","Curl martillo en cuerda","Brazo",["biceps","antebrazo"],3,"12-15","Polea",
+    ["Cuerda en polea baja, palmas enfrentadas.","Sube manteniendo el agarre neutro.","Baja resistiendo."],
+    ["Separar los codos del cuerpo.","Girar la muñeca al subir."],
+    ["El agarre neutro carga el braquiorradial y engrosa el brazo visto de frente."]),
+
+  // ---- CORE ----
+  ex("plancha-lateral","Plancha lateral","Core",["oblicuo","abdomen"],3,"30-45s","Peso corporal",
+    ["Apoyado en el antebrazo, cuerpo en línea recta.","Eleva la cadera y mantén.","Respira sin dejar caer la cintura."],
+    ["Dejar caer la cadera.","Rotar el torso hacia el suelo."],
+    ["Si es fácil, sube el brazo libre al techo o apoya solo un pie."]),
+  ex("crunch-polea","Crunch en polea","Core",["abdomen"],3,"15-20","Polea",
+    ["De rodillas frente a una polea alta, cuerda en la nuca.","Flexiona el torso llevando los codos a los muslos.","Vuelve controlando sin perder la tensión."],
+    ["Tirar con los brazos en vez del abdomen.","Mover la cadera en vez de la columna."],
+    ["Es el único abdominal al que puedes aplicarle sobrecarga progresiva de verdad."]),
+  ex("bicicleta","Bicicleta","Core",["oblicuo","abdomen"],3,"20-30","Peso corporal",
+    ["Tumbado, manos en la nuca sin tirar del cuello.","Lleva el codo hacia la rodilla contraria.","Alterna en un ritmo controlado."],
+    ["Tirar de la cabeza con las manos.","Ir rápido y perder el rango."],
+    ["Cuenta el tempo: lento gana a rápido en cada repetición."]),
+  ex("dead-bug","Dead bug","Core",["abdomen"],3,"10-12","Peso corporal",
+    ["Boca arriba, brazos al techo y rodillas a 90°.","Baja el brazo y la pierna contraria a la vez.","Vuelve sin despegar la lumbar del suelo."],
+    ["Despegar la zona lumbar.","Bajar más de lo que puedes controlar."],
+    ["Si la lumbar se despega, acorta el recorrido: ahí está el punto exacto de tu control."]),
+  ex("pallof-press","Pallof press","Core",["oblicuo","abdomen"],3,"12-15","Polea",
+    ["De pie de lado a la polea, manos en el pecho.","Extiende los brazos al frente resistiendo la rotación.","Vuelve al pecho sin girar."],
+    ["Dejar que el torso rote hacia la polea.","Usar tanto peso que se pierda la postura."],
+    ["No es un giro: es aguantar para NO girar, que es como el core trabaja de verdad."]),
+  ex("v-ups","V-ups","Core",["abdomen","oblicuo"],3,"12-15","Peso corporal",
+    ["Tumbado, brazos y piernas extendidos.","Sube tronco y piernas a la vez formando una V.","Baja controlado sin tocar el suelo."],
+    ["Usar impulso de los brazos.","Doblar las rodillas para facilitar sin querer."],
+    ["Si no llegas, empieza doblando las rodillas y ve estirando con las semanas."]),
 ];
 
 /* ---------- Rutina semilla: Hipertrofia 5 días (v2) ----------
@@ -1406,10 +1627,13 @@ function openPesoSheet(idx){
     if(v==null||isNaN(v))return toast("Anota un peso");
     guardarPeso(item.exId,iso,v);
     S.checks[checkKey(selectedDay,idx)]=true;save();
-    closeSheet();renderHoy();toast(`${e.name}: ${v} ${LB}`);
+    closeSheet();pintarFilaPeso(idx);paintDayProgress();
+    $("#v-hoy").querySelector(`.ex[data-idx="${idx}"]`).classList.add("done");
+    autoMarcarSiCompleto();
+    toast(`${e.name}: ${v} ${LB}`);
   };
   const dl=$("#pbDel");if(dl)dl.onclick=()=>{
-    guardarPeso(item.exId,iso,null);closeSheet();renderHoy();toast("Peso quitado");
+    guardarPeso(item.exId,iso,null);closeSheet();pintarFilaPeso(idx);toast("Peso quitado");
   };
 }
 /* Tarjeta de "entrené por fuera". Aparece en todos los días —también en los de descanso, que es
@@ -1469,10 +1693,10 @@ function openFreeSheet(iso){
   });
   $("#fs-save").onclick=()=>{
     setFree(iso,inp.value.trim()||"Sesión libre");
-    closeSheet2();renderHoy();toast("Día marcado como entrenado");
+    closeSheet2();pintarMarca(iso,true);toast("Día marcado como entrenado");
     try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}
   };
-  const del=$("#fs-del");if(del)del.onclick=()=>{clearFree(iso);closeSheet2();renderHoy();toast("Sesión libre quitada");};
+  const del=$("#fs-del");if(del)del.onclick=()=>{clearFree(iso);closeSheet2();pintarMarca(iso,false);toast("Sesión libre quitada");};
 }
 /* Aviso de medidas en Hoy: solo aparece cuando ya toca según la meta (o si nunca se han tomado).
    Es el "recuerda" del ciclo de medidas; el detalle vive en Progreso. */
@@ -1498,8 +1722,6 @@ function paintDayProgress(){
   const bar=$("#dayBar"),num=$("#dayPct");
   if(bar)bar.style.width=pct+"%";
   if(num)num.textContent=pct+"%";
-  const pill=$("#v-hoy").querySelector(`.daypill[data-day="${selectedDay}"]`);
-  if(pill)pill.classList.toggle("complete",pct===100);
 }
 function setCheck(i,done){
   const k=checkKey(selectedDay,i);
@@ -1507,22 +1729,86 @@ function setCheck(i,done){
   const row=$("#v-hoy").querySelector(`.ex[data-idx="${i}"]`);
   if(row)row.classList.toggle("done",done);
 }
-function bindHoy(){
-  const mn=$("#measNotice");if(mn)mn.onclick=()=>{mzOpen=true;openPerfil();}; // el aviso lleva al Perfil, donde viven las medidas
-  const fc=$("#freeCard");if(fc)fc.onclick=()=>openFreeSheet(fc.dataset.iso);
-  const mk=$("#mkToggle");if(mk)mk.onclick=()=>{
+/* ---------- Repintado en sitio (regla de v1.13.0) ----------
+   NADA de lo que se toca durante una sesión puede llamar a `renderHoy()`. Reconstruir el
+   `innerHTML` entero relanza el escalonado de toda la lista, mata la animación del elemento que
+   cambió (nace ya en su estado final, sin nada desde donde animar) y —lo más visible— **salta el
+   scroll**: el Señor Stick se queda mirando otra parte de la pantalla. Estas tres funciones tocan
+   solo el nodo que cambió. */
+function pintarMarca(iso,animar){
+  const strip=$("#v-hoy .weekstrip");
+  if(strip){
+    const antes=+($("#wsNum")||{textContent:0}).textContent||0;
+    const tmp=document.createElement("div");
+    tmp.innerHTML=weekStrip();
+    const nueva=tmp.firstElementChild;
+    strip.parentNode.replaceChild(nueva,strip);
+    nueva.querySelectorAll("[data-wd]").forEach(p=>p.onclick=()=>go("calendario"));
+    const reducido=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(animar&&!reducido){
+      const punto=nueva.querySelector(`[data-wd="${iso}"]`);
+      if(punto)punto.classList.add("recien");
+      if((+$("#wsNum").textContent||0)>antes)nueva.querySelector(".wstreak").classList.add("sube");
+    }
+  }
+  const mc=$("#markCard");
+  if(mc){
+    const t=document.createElement("div");
+    t.innerHTML=markCard(iso);
+    mc.parentNode.replaceChild(t.firstElementChild,mc);
+    bindMarkCard();
+  }
+}
+function bindMarkCard(){
+  const mk=$("#mkToggle");if(!mk)return;
+  mk.onclick=()=>{
     const iso=$("#markCard").dataset.iso;
-    const marcado=dayState(iso)==="entrenado"||dayState(iso)==="libre";
-    if(marcado){desmarcarDia(iso);renderHoy();toast("Marca quitada");}
+    const e=dayState(iso);
+    if(e==="entrenado"||e==="libre"){desmarcarDia(iso);pintarMarca(iso,false);toast("Marca quitada");}
     else{
       marcarEntrenado(iso);
       try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}
-      /* La pulsación se resuelve ya (140ms, §17: es respuesta a un gesto) y las consecuencias
-         —el punto de hoy llenándose y la racha rodando— corren después en ~400ms. Ver
-         celebrarMarca(): sin ella el CTA no tendría efecto visible en esta pantalla. */
-      celebrarMarca(iso);
+      pintarMarca(iso,true);toast("Día marcado");
     }
   };
+}
+/* Repinta el peso de UNA fila: el botón y la línea de metadatos. No sustituye el nodo de la fila
+   para no relanzarle la animación de entrada. */
+function pintarFilaPeso(i){
+  const fila=$("#v-hoy").querySelector(`.ex[data-idx="${i}"]`);
+  if(!fila)return;
+  const item=activeRoutine().days[selectedDay].exercises[i];
+  const e=getEx(item.exId);if(!e)return;
+  const iso=todayKey();
+  const w=pesoDe(item.exId,iso), prev=pesoPrevio(item.exId,iso);
+  const delta=w!=null&&prev?+(w-prev.weight).toFixed(1):null;
+  const btn=fila.querySelector("[data-peso]");
+  btn.classList.toggle("logged",w!=null);
+  btn.title=w!=null?`${w} ${LB} — tocar para cambiar`:"Anotar el peso de hoy";
+  btn.innerHTML=w!=null?`<span class="elv">${w}</span><span class="elk">${LB}</span>`
+                       :`<span class="elv">${IC.plus}</span><span class="elk">Peso</span>`;
+  const meta=fila.querySelector(".ex-meta");
+  if(meta)meta.innerHTML=`${e.group} · ${item.sets}×${item.reps}`
+    +(prev&&w==null?` · última vez <b class="mono">${prev.weight}</b> ${LB}`:"")
+    +(delta!=null&&delta!==0?` · <span style="color:var(--${delta>0?"emerald":"amber"});font-weight:700">${delta>0?"+":""}${delta} ${LB}</span>`:"");
+}
+/* Al completar TODOS los ejercicios, el día se marca solo. Pedido del Señor Stick: si tildó la
+   lista entera, evidentemente entrenó, y pedirle un toque más sobra. Solo enciende — nunca apaga:
+   destildar un ejercicio después no borra un entrenamiento que sí ocurrió. */
+function autoMarcarSiCompleto(){
+  const iso=todayKey();
+  if(dayProgress(selectedDay)!==100)return;
+  const e=dayState(iso);
+  if(e==="entrenado"||e==="libre")return;
+  marcarEntrenado(iso);
+  pintarMarca(iso,true);
+  toast("Día completo · marcado como entrenado");
+}
+
+function bindHoy(){
+  const mn=$("#measNotice");if(mn)mn.onclick=()=>{mzOpen=true;openPerfil();}; // el aviso lleva al Perfil, donde viven las medidas
+  const fc=$("#freeCard");if(fc)fc.onclick=()=>openFreeSheet(fc.dataset.iso);
+  bindMarkCard();
   /* Los puntos de la tira son indicador, no navegación: llevan al Calendario, que es de donde
      se marca cualquier día que no sea hoy. */
   $("#v-hoy").querySelectorAll("[data-wd]").forEach(p=>p.onclick=()=>go("calendario"));
@@ -1530,7 +1816,7 @@ function bindHoy(){
     e.stopPropagation();const i=+c.dataset.check;
     const nowDone=!isChecked(selectedDay,i);
     setCheck(i,nowDone);save();paintDayProgress();
-    if(nowDone){try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}}
+    if(nowDone){try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}autoMarcarSiCompleto();}
   });
   $("#v-hoy").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openExercise(b.dataset.open));
   $("#v-hoy").querySelectorAll("[data-peso]").forEach(b=>b.onclick=e=>{
@@ -1668,24 +1954,45 @@ function editDay(rid,dayId){
     save();openRoutine(rid);renderRutinas();renderHoy();toast("Día guardado");
   };
 }
+/* Con 82 ejercicios en el catálogo, la lista completa mide más de 6.000 px: buscar a ojo dejó de
+   ser viable. El filtro mira nombre, músculo y equipo —"polea", "dorsal" y "remo" son tres formas
+   igual de legítimas de buscar lo mismo— y los chips acotan por grupo de un toque. */
+function normalizar(s){return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
 function pickExercise(cb){
+  let grupoSel=null;
   let h=`<div class="sheet-grab"></div><div class="sheet-head"><div class="h2">Añadir ejercicio</div><button class="close-x" data-close>×</button></div>
-    <div class="field" style="margin-top:10px"><input type="text" id="exSearch" placeholder="Buscar ejercicio..."></div><div id="pickList"></div>`;
+    <div class="field" style="margin-top:10px"><input type="text" id="exSearch" placeholder="Nombre, músculo o equipo..."></div>
+    <div class="fchips" id="pickChips">${GROUPS.map(g=>`<button class="fchip" data-pg="${g}">${g}</button>`).join("")}</div>
+    <div id="pickList"></div>`;
   openSheet2(h);
-  function draw(q){
-    q=(q||"").toLowerCase();
-    const list=$("#pickList");let out="";
+  function coincide(e,q){
+    if(!q)return true;
+    return normalizar(e.name).includes(q)||normalizar(e.eq).includes(q)
+      ||normalizar(e.group).includes(q)||(e.muscles||[]).some(m=>normalizar(m).includes(q));
+  }
+  function draw(){
+    const q=normalizar($("#exSearch").value||"");
+    const list=$("#pickList");let out="",n=0;
     GROUPS.forEach(g=>{
-      const items=allEx().filter(e=>e.group===g&&e.name.toLowerCase().includes(q));
+      if(grupoSel&&g!==grupoSel)return;
+      const items=allEx().filter(e=>e.group===g&&coincide(e,q));
       if(!items.length)return;
-      out+=`<div class="label-mono" style="margin:14px 0 8px">${g}</div>`;
+      n+=items.length;
+      out+=`<div class="label-mono" style="margin:14px 0 8px">${g} · ${items.length}</div>`;
       out+=items.map(e=>`<div class="cat-item" data-pick="${e.id}"><div class="mg-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--zinc-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${MG_ICON[g]}"/></svg></div><div style="flex:1"><div class="ex-name" style="font-size:13px">${e.name}</div><div class="ex-meta">${e.eq} · ${e.sets}×${e.reps}</div></div>${IC.chevron}</div>`).join("");
     });
-    list.innerHTML=out||`<p class="muted" style="text-align:center;padding:20px">Sin resultados.</p>`;
+    list.innerHTML=n?out:`<p class="muted" style="text-align:center;padding:20px">Sin resultados.</p>`;
     list.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{cb(b.dataset.pick);closeSheet2();});
   }
-  draw("");
-  $("#exSearch").oninput=e=>draw(e.target.value);
+  $("#pickChips").querySelectorAll("[data-pg]").forEach(b=>b.onclick=()=>{
+    const ya=grupoSel===b.dataset.pg;
+    grupoSel=ya?null:b.dataset.pg;
+    $("#pickChips").querySelectorAll("[data-pg]").forEach(x=>x.classList.remove("sel"));
+    if(!ya)b.classList.add("sel");
+    draw();
+  });
+  draw();
+  $("#exSearch").oninput=draw;
 }
 
 /* ============================================================
@@ -1695,13 +2002,15 @@ function renderEjercicios(){
   let h=`<div class="view-head" style="display:flex;justify-content:space-between;align-items:flex-end">
     <div><div class="label">Base de datos</div><div class="h1" style="margin-top:2px">Ejercicios</div></div>
     <button class="btn-secondary" id="newEx">${IC.plus} Crear</button></div>`;
-  h+=`<div class="field"><input type="text" id="catSearch" placeholder="Buscar..."></div>`;
+  h+=`<div class="field"><input type="text" id="catSearch" placeholder="Nombre, músculo o equipo..."></div>`;
   h+=`<div id="catList"></div>`;
   $("#v-ejercicios").innerHTML=h;
   const draw=q=>{
-    q=(q||"").toLowerCase();let out="";
+    q=normalizar(q||"");let out="";
     GROUPS.forEach(g=>{
-      const items=allEx().filter(e=>e.group===g&&e.name.toLowerCase().includes(q));
+      const items=allEx().filter(e=>e.group===g&&(!q||normalizar(e.name).includes(q)
+        ||normalizar(e.eq).includes(q)||normalizar(e.group).includes(q)
+        ||(e.muscles||[]).some(m=>normalizar(m).includes(q))));
       if(!items.length)return;
       out+=`<div class="cat-group"><div class="label-mono" style="margin-bottom:9px">${g} · ${items.length}</div>`;
       out+=items.map(e=>`<div class="cat-item" data-open="${e.id}">
@@ -2639,35 +2948,6 @@ function mealPlanHTML(kcal,protein){
    aquí corren las consecuencias en ~400ms decelerando. Se repinta la tira SOLA, no la vista
    entera: un `renderHoy()` completo destruiría el nodo del punto y la animación no tendría de
    dónde partir — el mismo motivo por el que el dock separa montarDock() de renderDock(). */
-function celebrarMarca(iso){
-  const strip=$("#v-hoy .weekstrip");
-  const antes=+($("#wsNum")||{textContent:0}).textContent||0;
-  if(!strip){renderHoy();return;}
-  const cont=strip.parentNode;
-  const tmp=document.createElement("div");
-  tmp.innerHTML=weekStrip();
-  const nueva=tmp.firstElementChild;
-  cont.replaceChild(nueva,strip);
-  $("#v-hoy").querySelectorAll("[data-wd]").forEach(p=>p.onclick=()=>go("calendario"));
-
-  const reducido=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(!reducido){
-    const punto=nueva.querySelector(`[data-wd="${iso}"]`);
-    if(punto)punto.classList.add("recien");
-    const ahora=+$("#wsNum").textContent||0;
-    if(ahora>antes)nueva.querySelector(".wstreak").classList.add("sube");
-  }
-  // La tarjeta cambia de estado en el sitio, sin volver a montar la lista de ejercicios.
-  const mc=$("#markCard");
-  if(mc){
-    const t=document.createElement("div");
-    t.innerHTML=markCard(iso);
-    mc.parentNode.replaceChild(t.firstElementChild,mc);
-    const mk=$("#mkToggle");
-    if(mk)mk.onclick=()=>{desmarcarDia(iso);renderHoy();toast("Marca quitada");};
-  }
-  toast("Día marcado");
-}
 /* Envuelve un cambio de vista en una View Transition cuando el navegador la trae. Sin soporte
    —o con movimiento reducido— ejecuta el cambio tal cual: la app nunca depende de la animación
    para funcionar. */
