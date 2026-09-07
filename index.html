@@ -11,10 +11,10 @@
 <link rel="icon" href="./favicon.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <title>STICK FIT</title>
-<meta name="description" content="Protocolo personal de fuerza: rutinas, progreso y nutrición.">
+<meta name="description" content="Rutinas, constancia y nutrición para ganar masa muscular.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="STICK FIT">
-<meta property="og:description" content="Protocolo personal de fuerza: rutinas, progreso y nutrición.">
+<meta property="og:description" content="Rutinas, constancia y nutrición para ganar masa muscular.">
 <meta property="og:image" content="./icon-512.png">
 <meta name="twitter:card" content="summary">
 <!-- Anti-destello: aplica el tema ANTES del primer pintado (STICK_UI_SYSTEM.md 10) -->
@@ -319,7 +319,7 @@ html.light nav.dock{
   position:absolute;top:6px;bottom:6px;left:0;border-radius:999px;
   background:var(--tinta);pointer-events:none;
   width:var(--pw,0px);transform:translate3d(var(--px,0px),0,0);
-  transition:transform .45s var(--resorte),width .45s var(--resorte);
+  transition:transform var(--t-muelle) var(--muelle),width var(--t-muelle) var(--muelle);
 }
 .dock-btn{position:relative;z-index:1;padding:10px 16px;border:none;background:transparent;cursor:pointer;
   border-radius:999px;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -483,6 +483,77 @@ html.light .daypill.on{background:var(--tinta);border-color:var(--tinta)}
 .daypill.on.complete .dot,.daypill.on.free .dot{background:var(--contratinta)}
 
 /* ── Sesión libre (entrené, pero no la rutina) ── */
+/* ---------- Muelles reales en CSS (etapa 3 del rediseño v2) ----------
+   STICK BUDGETS anima con Motion; aquí no hay librería, y hasta ahora los muelles se imitaban
+   con una cubic-bezier de rebote fijo. `linear()` sí describe un muelle de verdad: son las
+   posiciones muestreadas de un oscilador amortiguado, así que la curva es la MISMA que produce
+   `{type:'spring', duration, bounce}` en el resto de la familia (§17.2).
+   Sobrepaso ~1%: se asienta, no rebota — que es el criterio de la casa. */
+:root{
+  --muelle:linear(0, 0.0393, 0.1329, 0.2526, 0.3794, 0.5014, 0.6116, 0.7066, 0.7855, 0.849, 0.8984, 0.9358, 0.9631, 0.9823, 0.9953, 1.0035, 1.0082, 1.0105, 1.0111, 1.0107, 1.0096, 1.0083, 1.0069, 1.0055, 1);
+  --muelle-suave:linear(0, 0.0358, 0.1211, 0.2309, 0.3483, 0.4626, 0.5673, 0.6595, 0.7378, 0.8027, 0.855, 0.8964, 0.9283, 0.9524, 0.9701, 0.9829, 0.9917, 0.9976, 1.0014, 1.0036, 1.0047, 1.005, 1.0049, 1.0045, 1);
+  --t-muelle:450ms;   /* §17.2 · píldora de navegación */
+  --t-consecuencia:400ms; /* lo que ocurre DESPUÉS de un gesto (§17: la pulsación son 140ms) */
+}
+
+/* ---------- Tira de semana (solo lectura) ---------- */
+.weekstrip{display:flex;align-items:center;gap:12px;margin-top:16px;padding:12px 14px;border-radius:16px;
+  background:rgba(255,255,255,.04);border:1px solid var(--v-borde);
+  backdrop-filter:var(--v-blur);-webkit-backdrop-filter:var(--v-blur)}
+html.light .weekstrip{background:rgba(255,255,255,.66)}
+.wdots{display:flex;gap:7px;flex:1;min-width:0}
+.wd{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.wd .wdd{width:100%;height:6px;border-radius:999px;background:var(--sup-2);
+  transition:background var(--t-consecuencia) var(--ease),transform var(--t-consecuencia) var(--muelle)}
+.wd .wdl{font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--zinc-600)}
+.wd.rest .wdd{background:rgba(56,189,248,.28)}
+.wd.miss .wdd{background:rgba(251,113,133,.30)}
+.wd.on .wdd{background:var(--emerald)}
+.wd.free .wdd{background:var(--sky)}
+.wd.today .wdl{color:var(--zinc-300)}
+html.light .wd.on .wdd{background:#059669}
+/* El punto que acaba de encenderse crece un instante y vuelve: es la consecuencia visible del
+   CTA, y lo único que se mueve al marcar. */
+.wd.recien .wdd{animation:wdPop var(--t-consecuencia) var(--muelle)}
+@keyframes wdPop{0%{transform:scaleY(1)}45%{transform:scaleY(2.1)}100%{transform:scaleY(1)}}
+.wstreak{flex:none;display:flex;align-items:baseline;gap:4px;padding-left:12px;border-left:1px solid var(--brd)}
+.wstreak .wsn{font-size:20px;font-weight:800;line-height:1;color:var(--zinc-100)}
+.wstreak .wsl{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--zinc-500)}
+.wstreak.sube .wsn{animation:wsRoll var(--t-consecuencia) var(--ease)}
+@keyframes wsRoll{0%{transform:translateY(9px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+/* ---------- Caja del peso (un solo número) ---------- */
+.pesobox{display:flex;align-items:center;gap:12px;margin-top:16px}
+.pb-step{flex:none;width:54px;height:54px;border-radius:18px;font-size:24px;font-weight:700;cursor:pointer;
+  background:var(--v-fondo);backdrop-filter:var(--v-blur);-webkit-backdrop-filter:var(--v-blur);
+  color:var(--zinc-200);border:1px solid var(--v-borde);
+  transition:transform var(--t-toque) var(--muelle),background var(--t-toque) var(--suave)}
+.pb-step:active{transform:scale(.93)}
+.pb-val{flex:1;display:flex;align-items:baseline;justify-content:center;gap:6px;
+  padding:10px 12px;border-radius:18px;background:var(--sup);border:1px solid var(--brd)}
+.pb-val input{width:100%;max-width:130px;text-align:center;background:none;border:none;outline:none;
+  font-size:34px;font-weight:800;color:var(--zinc-100);padding:0}
+.pb-val input::-webkit-outer-spin-button,.pb-val input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pb-val input[type=number]{-moz-appearance:textfield}
+.pb-u{flex:none;font-size:12px;font-weight:700;color:var(--zinc-500)}
+
+/* ---------- Transición entre pestañas (§17.3) ----------
+   La View Transitions API interpola entre el DOM viejo y el nuevo sin librería: es lo que
+   sustituye al AnimatePresence de BUDGETS. Salida 100ms y entrada 220ms — las dos se cruzan
+   (equivalente a popLayout), para que no quede un instante en blanco que se lee como demora. */
+@media (prefers-reduced-motion: no-preference){
+  ::view-transition-old(vista){animation:vtOut 100ms var(--suave) both}
+  ::view-transition-new(vista){animation:vtIn 220ms var(--ease) both}
+}
+@keyframes vtOut{to{opacity:0}}
+@keyframes vtIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* §17.7 · lo que corre por JS hay que apagarlo aparte; esto apaga lo que corre por CSS. */
+@media (prefers-reduced-motion: reduce){
+  .wd .wdd,.wd.recien .wdd,.wstreak.sube .wsn{animation:none;transition:none}
+  ::view-transition-old(vista),::view-transition-new(vista){animation:none}
+}
+
 /* ---------- Tarjeta de marcado del día (v2) ----------
    Cuidado al tocar esto: los overrides `html.light .markcard` tienen la MISMA especificidad que
    `.markcard.on` y, al ir después en el archivo, la vencerían. Por eso el estado activo se
@@ -776,6 +847,9 @@ html.light .mchip{background:rgba(255,255,255,.76)}
             <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
           </svg>
         </button>
+        <button class="icon-btn" id="perfilBtn" title="Perfil" aria-label="Perfil">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+        </button>
         <button class="icon-btn" id="coverBtn" title="Portada">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         </button>
@@ -787,7 +861,8 @@ html.light .mchip{background:rgba(255,255,255,.76)}
     <section id="v-hoy" class="view on"></section>
     <section id="v-rutinas" class="view"></section>
     <section id="v-ejercicios" class="view"></section>
-    <section id="v-progreso" class="view"></section>
+    <section id="v-calendario" class="view"></section>
+    <section id="v-perfil" class="view"></section>
     <section id="v-nutricion" class="view"></section>
   </main>
 </div>
@@ -819,7 +894,7 @@ const jsDayToId=()=>{const m={0:"dom",1:"lun",2:"mar",3:"mie",4:"jue",5:"vie",6:
    martes desde un miércoles guardaba el check con la fecha de hoy y el calendario de
    asistencia pintaba el día equivocado. */
 const DAY_IDX={lun:0,mar:1,mie:2,jue:3,vie:4,sab:5,dom:6};
-let weekOffset=0;
+const weekOffset=0; // Hoy es solo hoy desde v2: nadie lo mueve; dateOfDay/checkKey lo siguen leyendo
 function dateOfDay(dayId,off){
   const n=new Date();
   const w=off===undefined?weekOffset:off;
@@ -827,15 +902,6 @@ function dateOfDay(dayId,off){
   return isoOf(new Date(n.getFullYear(),n.getMonth(),n.getDate()+delta));
 }
 /* Semanas completas entre la semana (lunes→domingo) de `iso` y la semana actual. */
-function weekOffsetOf(iso){
-  const p=String(iso).split("-");
-  const d=new Date(+p[0],+p[1]-1,+p[2]);
-  const n=new Date();
-  const lunA=new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));
-  const lunB=new Date(n.getFullYear(),n.getMonth(),n.getDate()-((n.getDay()+6)%7));
-  return Math.round((lunB-lunA)/604800000);
-}
-
 /* ---------- Catálogo semilla de ejercicios ---------- */
 const GROUPS=["Pecho","Espalda","Pierna","Hombro","Brazo","Core"];
 function ex(id,name,group,muscles,sets,reps,eq,steps,errors,tips,cardio){
@@ -1071,7 +1137,7 @@ const IC={
   rutinas:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>',
   ejercicios:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M8 9v6M16 9v6"/></svg>',
   nutricion:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4zM6 2v3M10 2v3M14 2v3"/></svg>',
-  progreso:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>',
+  calendario:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
   plus:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   chevron:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
@@ -1193,52 +1259,69 @@ function dayProgress(dayId){
 }
 /* Etiqueta de la semana. Con el rango completo, "Semana pasada · 27 jul – 02 ago" se corta en
    un iPhone: los días ya están en las píldoras, así que ahí basta con nombrarla. */
-function weekLabel(off){
-  if(off===0)return "Esta semana";
-  if(off===1)return "Semana pasada";
-  const corta=iso=>fechaCorta(iso).replace(/^0/,"");
-  return `${corta(dateOfDay("lun",off))} – ${corta(dateOfDay("dom",off))}`;
-}
 /* Abre en Hoy la fecha de un cuadrito del calendario de asistencia (puede ser de otra semana). */
-function openDate(iso){
-  weekOffset=weekOffsetOf(iso);
-  const p=iso.split("-");
-  selectedDay=DAY_IDS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
-  go("hoy");
+/* ---------- Peso por ejercicio (rediseño v2) ----------
+   Sustituye a la hoja de serie por serie. Se guarda UN número por ejercicio y día, y se
+   pre-carga con el de la última vez: el registro deja de ser una tarea de documentación y pasa
+   a ser un ajuste de un toque. Se sigue escribiendo en `history[]` con la forma de siempre
+   (`sets:[{weight}]`) para no partir el resto de la app ni el respaldo. */
+const PASO_LB=5;
+function pesoDe(exId,iso){
+  const l=(S.history||[]).filter(x=>x.exId===exId&&x.date===iso).slice(-1)[0];
+  return l&&l.weight!=null?l.weight:null;
+}
+function pesoPrevio(exId,antes){
+  const l=(S.history||[]).filter(x=>x.exId===exId&&x.date<antes&&x.weight!=null)
+    .sort((a,b)=>a.date<b.date?-1:1).slice(-1)[0];
+  return l?{weight:l.weight,date:l.date}:null;
+}
+function guardarPeso(exId,iso,w){
+  S.history=S.history||[];
+  const i=S.history.findIndex(x=>x.exId===exId&&x.date===iso);
+  if(w==null){if(i>=0)S.history.splice(i,1);save();return;}
+  const reg={id:i>=0?S.history[i].id:uid(),date:iso,exId,weight:w,reps:null,sets:[{weight:w,reps:null}]};
+  if(i>=0)S.history[i]=reg;else S.history.push(reg);
+  save();
+}
+
+/* ============================================================
+   VISTA: HOY  (rediseño v2 — solo hoy)
+   ============================================================
+   Ya no navega el tiempo: sin flechas de semana, sin píldoras de día y sin `weekOffset`. Viajar
+   a otra fecha es trabajo del Calendario. La tira de semana de abajo es SOLO indicador: siete
+   puntos y la racha, sin lógica de fechas ni navegación — existe para que el CTA "Entrené",
+   que vive aquí, tenga su consecuencia visible aquí y no solo en otra pestaña. */
+function weekStrip(){
+  const hoy=todayKey();
+  const base=new Date();
+  const lunes=new Date(base.getFullYear(),base.getMonth(),base.getDate()-((base.getDay()+6)%7));
+  let pts="";
+  DAYS.forEach(([id,lbl],i)=>{
+    const d=new Date(lunes.getFullYear(),lunes.getMonth(),lunes.getDate()+i);
+    const iso=isoOf(d);
+    const e=dayState(iso);
+    const cls=e==="entrenado"?"on":e==="libre"?"free":e==="descanso"?"rest":e==="fallado"?"miss":"";
+    pts+=`<div class="wd ${cls}${iso===hoy?" today":""}" data-wd="${iso}" title="${lbl} · ${e}">
+      <span class="wdd"></span><span class="wdl">${lbl.slice(0,2)}</span></div>`;
+  });
+  const r=currentStreak();
+  return `<div class="weekstrip">
+    <div class="wdots">${pts}</div>
+    <div class="wstreak" id="wStreak" aria-live="polite">
+      <span class="wsn mono" id="wsNum">${r}</span><span class="wsl">${r===1?"día":"días"}</span></div>
+  </div>`;
 }
 function renderHoy(){
   const r=activeRoutine();
+  selectedDay=jsDayToId();
   const day=r.days[selectedDay];
-  const fechaSel=dateOfDay(selectedDay);
-  const isToday=fechaSel===todayKey();
+  const fechaSel=todayKey();
   let h=`<div class="view-head">
-    <div class="label">${isToday?"Hoy · ":""}${DAYNAME[selectedDay]} · ${fechaCorta(fechaSel)}</div>
+    <div class="label">Hoy · ${DAYNAME[selectedDay]} · ${fechaCorta(fechaSel)}</div>
     <div class="h1" style="margin-top:2px">${day.rest?"Descanso":day.focus}</div>
     <div class="sub" style="margin-top:4px">Rutina activa · <b style="color:var(--zinc-300)">${r.name}</b></div>
   </div>`;
-  // Navegación de semana: permite completar días de semanas anteriores
-  h+=`<div class="weeknav">
-    <button class="icon-btn" id="wkPrev" title="Semana anterior"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <div class="wklabel${weekOffset?" past":""}">${weekLabel(weekOffset)}</div>
-    <button class="icon-btn" id="wkNext" title="Semana siguiente" ${weekOffset?"":"disabled"}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
-    ${weekOffset?`<button class="wk-today" id="wkToday">Hoy</button>`:""}
-  </div>`;
-  // Semana
-  h+=`<div class="week">`+DAYS.map(([id,lbl])=>{
-    const dd=r.days[id];const pct=dayProgress(id);
-    const dnum=+dateOfDay(id).split("-")[2];
-    const lib=!!freeOf(dateOfDay(id));
-    return `<div class="daypill${id===selectedDay?" on":""}${dd.rest?" rest":""}${lib?" free":""}${pct===100?" complete":""}" data-day="${id}">
-      <span class="dot"></span><div class="dw">${lbl} ${dnum}</div><div class="df">${dd.rest?"Rest":dd.focus.replace(/ [AB]$/,"")}</div></div>`;
-  }).join("")+`</div>`;
-  /* Lo que se marque queda guardado en la fecha del día elegido, no en la de hoy: conviene
-     decirlo cuando el día visto no es hoy. */
-  if(!isToday&&!day.rest){
-    const pasado=fechaSel<todayKey();
-    h+=`<div class="sub" style="margin-top:10px;font-size:11px;color:${pasado?"var(--zinc-500)":"var(--amber)"}">
-      ${pasado?`Estás completando el <b style="color:var(--zinc-300)">${fechaLarga(fechaSel)}</b>; así queda en el calendario.`
-              :`Este día aún no llega: lo que marques quedará guardado el <b>${fechaLarga(fechaSel)}</b>.`}</div>`;
-  }
+  h+=weekStrip();
   h+=markCard(fechaSel);
   h+=measureReminderBanner();
 
@@ -1263,18 +1346,20 @@ function renderHoy(){
   day.exercises.forEach((item,i)=>{
     const e=getEx(item.exId);if(!e)return;
     const done=isChecked(selectedDay,i);
-    const le=lastEntry(item.exId,fechaSel);
-    const sug=le?nextTargetObj(e,le):null;
-    const hoy=dayEntry(item.exId,selectedDay);
+    const w=pesoDe(item.exId,fechaSel);
+    const prev=pesoPrevio(item.exId,fechaSel);
+    /* La comparación contra la última vez es lo único que la hipertrofia necesita ver: si el
+       número de esta semana es mayor que el de la pasada, hubo sobrecarga. */
+    const delta=w!=null&&prev?w-prev.weight:null;
     h+=`<div class="ex${done?" done":""}" data-idx="${i}">
       <div class="chk" data-check="${i}">${IC.check}</div>
       <div class="ex-body" data-open="${item.exId}">
         <div class="ex-name">${e.name}</div>
-        <div class="ex-meta">${e.group} · ${item.sets}×${item.reps}${sug?` · <span style="color:var(--emerald);font-weight:700">objetivo ${sug.weight} ${LB} × ${sug.reps}</span>`:""}</div>
+        <div class="ex-meta">${e.group} · ${item.sets}×${item.reps}${prev&&w==null?` · última vez <b class="mono">${prev.weight}</b> ${LB}`:""}${delta!=null&&delta!==0?` · <span style="color:var(--${delta>0?"emerald":"amber"});font-weight:700">${delta>0?"+":""}${+delta.toFixed(1)} ${LB}</span>`:""}</div>
       </div>
-      <button class="ex-log${hoy?" logged":""}" data-log="${i}" title="${hoy?`Editar: ${setsSummary(hoy)}`:"Registrar peso serie por serie"}">
-        ${hoy?`<span class="elv">${setsRange(hoy)}</span><span class="elk">${LB} ×${entrySets(hoy).length}</span>`
-             :`<span class="elv">${IC.plus}</span><span class="elk">Peso</span>`}
+      <button class="ex-log${w!=null?" logged":""}" data-peso="${i}" title="${w!=null?`${w} ${LB} — tocar para cambiar`:"Anotar el peso de hoy"}">
+        ${w!=null?`<span class="elv">${w}</span><span class="elk">${LB}</span>`
+                 :`<span class="elv">${IC.plus}</span><span class="elk">Peso</span>`}
       </button>
     </div>`;
   });
@@ -1286,6 +1371,46 @@ function renderHoy(){
   </div></div>`;
   h+=freeSessionCard(fechaSel);
   $("#v-hoy").innerHTML=h;bindHoy();
+}
+/* Hoja del peso: un solo número, pre-cargado con el de la última vez y ajustable con -/+.
+   Es la pieza que reemplaza a las 28 casillas por sesión que el Señor Stick no usaba. */
+function openPesoSheet(idx){
+  const day=activeRoutine().days[selectedDay];
+  const item=day.exercises[idx];if(!item)return;
+  const e=getEx(item.exId);if(!e)return;
+  const iso=todayKey();
+  const actual=pesoDe(item.exId,iso);
+  const prev=pesoPrevio(item.exId,iso);
+  const val=actual!=null?actual:(prev?prev.weight:null);
+  openSheet(`<div class="sheet-grab"></div><div class="sheet-head">
+    <div style="min-width:0"><span class="label-mono">${item.sets}×${item.reps}</span>
+      <div class="h2" style="margin-top:3px">${e.name}</div></div>
+    <button class="close-x" data-close>×</button></div>
+    <p class="muted" style="margin:10px 0 0">${prev?`La última vez (${fechaCorta(prev.date)}) usaste <b class="mono">${prev.weight}</b> ${LB}.`:"Primera vez que anotas este ejercicio."}</p>
+    <div class="pesobox">
+      <button class="pb-step" id="pbMenos" aria-label="Bajar ${PASO_LB} ${LB}">−</button>
+      <div class="pb-val"><input id="pbInput" class="mono" type="number" inputmode="decimal" step="0.5" value="${val!=null?val:""}" placeholder="0"><span class="pb-u">${LB}</span></div>
+      <button class="pb-step" id="pbMas" aria-label="Subir ${PASO_LB} ${LB}">+</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      ${actual!=null?`<button class="btn-danger" style="flex:1" id="pbDel">Quitar</button>`:""}
+      <button class="btn-primary" style="flex:${actual!=null?"1.4":"1"}" id="pbSave">Guardar</button>
+    </div>`);
+  const inp=$("#pbInput");
+  const bump=d=>{const c=inp.value===""?(prev?prev.weight:0):parseFloat(inp.value)||0;
+    inp.value=Math.max(0,+(c+d).toFixed(1));};
+  $("#pbMenos").onclick=()=>bump(-PASO_LB);
+  $("#pbMas").onclick=()=>bump(PASO_LB);
+  $("#pbSave").onclick=()=>{
+    const v=inp.value===""?null:parseFloat(inp.value);
+    if(v==null||isNaN(v))return toast("Anota un peso");
+    guardarPeso(item.exId,iso,v);
+    S.checks[checkKey(selectedDay,idx)]=true;save();
+    closeSheet();renderHoy();toast(`${e.name}: ${v} ${LB}`);
+  };
+  const dl=$("#pbDel");if(dl)dl.onclick=()=>{
+    guardarPeso(item.exId,iso,null);closeSheet();renderHoy();toast("Peso quitado");
+  };
 }
 /* Tarjeta de "entrené por fuera". Aparece en todos los días —también en los de descanso, que es
    justo cuando más se usa— y guarda la sesión en la fecha que se esté viendo, igual que los checks. */
@@ -1383,19 +1508,24 @@ function setCheck(i,done){
   if(row)row.classList.toggle("done",done);
 }
 function bindHoy(){
-  const mn=$("#measNotice");if(mn)mn.onclick=()=>{mzOpen=true;go("progreso");}; // el aviso lleva a la tarjeta ya abierta
+  const mn=$("#measNotice");if(mn)mn.onclick=()=>{mzOpen=true;openPerfil();}; // el aviso lleva al Perfil, donde viven las medidas
   const fc=$("#freeCard");if(fc)fc.onclick=()=>openFreeSheet(fc.dataset.iso);
   const mk=$("#mkToggle");if(mk)mk.onclick=()=>{
     const iso=$("#markCard").dataset.iso;
     const marcado=dayState(iso)==="entrenado"||dayState(iso)==="libre";
-    if(marcado){desmarcarDia(iso);toast("Marca quitada");}
-    else{marcarEntrenado(iso);toast("Día marcado");try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}}
-    renderHoy();
+    if(marcado){desmarcarDia(iso);renderHoy();toast("Marca quitada");}
+    else{
+      marcarEntrenado(iso);
+      try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}
+      /* La pulsación se resuelve ya (140ms, §17: es respuesta a un gesto) y las consecuencias
+         —el punto de hoy llenándose y la racha rodando— corren después en ~400ms. Ver
+         celebrarMarca(): sin ella el CTA no tendría efecto visible en esta pantalla. */
+      celebrarMarca(iso);
+    }
   };
-  const wp=$("#wkPrev");if(wp)wp.onclick=()=>{weekOffset++;renderHoy();};
-  const wn=$("#wkNext");if(wn&&!wn.disabled)wn.onclick=()=>{weekOffset=Math.max(0,weekOffset-1);renderHoy();};
-  const wt=$("#wkToday");if(wt)wt.onclick=()=>{weekOffset=0;selectedDay=jsDayToId();renderHoy();};
-  $("#v-hoy").querySelectorAll(".daypill").forEach(p=>p.onclick=()=>{selectedDay=p.dataset.day;renderHoy();});
+  /* Los puntos de la tira son indicador, no navegación: llevan al Calendario, que es de donde
+     se marca cualquier día que no sea hoy. */
+  $("#v-hoy").querySelectorAll("[data-wd]").forEach(p=>p.onclick=()=>go("calendario"));
   $("#v-hoy").querySelectorAll("[data-check]").forEach(c=>c.onclick=e=>{
     e.stopPropagation();const i=+c.dataset.check;
     const nowDone=!isChecked(selectedDay,i);
@@ -1403,8 +1533,8 @@ function bindHoy(){
     if(nowDone){try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}}
   });
   $("#v-hoy").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openExercise(b.dataset.open));
-  $("#v-hoy").querySelectorAll("[data-log]").forEach(b=>b.onclick=e=>{
-    e.stopPropagation();openExLog(selectedDay,+b.dataset.log);
+  $("#v-hoy").querySelectorAll("[data-peso]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();openPesoSheet(+b.dataset.peso);
   });
   const rd=$("#resetDay");if(rd)rd.onclick=()=>{
     activeRoutine().days[selectedDay].exercises.forEach((_,i)=>setCheck(i,false));
@@ -1422,91 +1552,6 @@ function dayEntry(exId,dayId){
   const t=dateOfDay(dayId);
   return (S.history||[]).filter(l=>l.exId===exId&&l.date===t).slice(-1)[0]||null;
 }
-function setsRange(l){
-  const ws=entrySets(l).map(s=>s.weight).filter(w=>w!=null);
-  if(!ws.length)return "—";
-  const mn=Math.min(...ws),mx=Math.max(...ws);
-  return mn===mx?String(mn):`${mn}-${mx}`;
-}
-function setsSummary(l){const r=setsRange(l);return r==="—"?r:r+" "+LB;}
-function setPills(l){
-  const rows=entrySets(l);
-  const bi=rows.indexOf(bestSet(rows));
-  return `<div class="setpills">`+rows.map((s,i)=>
-    `<span class="setpill${i===bi&&rows.length>1?" best":""}"><i>S${i+1}</i>${s.weight!=null?s.weight+" "+LB:"—"}${s.reps!=null?" × "+s.reps:""}</span>`
-  ).join("")+`</div>`;
-}
-function setRowHTML(si,w,r){
-  return `<div class="setrow" data-row="${si}">
-    <span class="setlbl">Serie ${si+1}</span>
-    <input class="set-w" type="number" inputmode="decimal" step="0.5" data-set="${si}" value="${w!=null?w:''}" placeholder="${LB}">
-    <input class="set-r" type="number" inputmode="numeric" data-set="${si}" value="${r!=null?r:''}" placeholder="reps">
-  </div>`;
-}
-function openExLog(dayId,idx){
-  const day=activeRoutine().days[dayId];
-  const item=day.exercises[idx];if(!item)return;
-  const e=getEx(item.exId);if(!e)return;
-  const fecha=dateOfDay(dayId);
-  const esHoy=fecha===todayKey();
-  const prev=dayEntry(item.exId,dayId);
-  const le=lastEntry(item.exId,fecha);
-  const sug=le?nextTargetObj(e,le):null;
-  const rows=prev?entrySets(prev):Array.from({length:nSetsOf(item)},()=>({weight:sug?sug.weight:null,reps:sug?sug.reps:null}));
-
-  let h=`<div class="sheet-grab"></div><div class="sheet-head">
-    <div style="min-width:0"><span class="label-mono">${DAYNAME[dayId]} ${fechaCorta(fecha)} · ${day.focus}</span>
-      <div class="h2" style="margin-top:3px">${e.name}</div></div>
-    <button class="close-x" data-close>×</button></div>`;
-  h+=`<div style="display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap">
-    <span class="chip">plan ${item.sets}×${item.reps}</span>
-    ${sug?`<span class="chip" style="background:rgba(52,211,153,.12);color:var(--emerald)">objetivo ${sug.weight} ${LB} × ${sug.reps}</span>`:""}</div>`;
-  h+=`<p class="muted" style="margin:8px 0 14px">Cada serie se guarda tal cual la hagas: si la 1.ª fue 45 y la 3.ª 40, así queda. No se promedia nada.</p>`;
-  h+=`<div class="setrow setrow-h"><span class="setlbl"></span><span class="setlbl">Peso (${LB})</span><span class="setlbl">Reps</span></div>
-    <div id="setsBox">${rows.map((s,si)=>setRowHTML(si,s.weight,s.reps)).join("")}</div>
-    <button class="btn-secondary" id="addSet" style="width:100%;margin-top:4px">${IC.plus} Añadir serie</button>`;
-  h+=`<button class="btn-primary" style="width:100%;margin-top:10px" id="saveLog">${prev?"Actualizar registro":"Guardar ejercicio"}</button>`;
-  if(prev)h+=`<button class="btn-danger" style="width:100%;margin-top:8px" id="delLog">Eliminar registro ${esHoy?"de hoy":"del "+fechaCorta(fecha)}</button>`;
-
-  const logs=(S.history||[]).filter(l=>l.exId===item.exId).sort((a,b)=>a.date<b.date?-1:1).slice(-8).reverse();
-  if(logs.length){
-    h+=`<div class="tech" style="margin-top:18px"><h4>Historial de este ejercicio</h4></div>`;
-    logs.forEach(l=>{
-      h+=`<div class="sethist">
-        <div class="shd"><span class="muted mono">${fechaCorta(l.date)}</span>
-          <span class="mono" style="font-size:11px;color:var(--zinc-500)">${entrySets(l).length} series</span></div>
-        ${setPills(l)}</div>`;
-    });
-    h+=`<p class="muted" style="margin-top:10px;font-size:11px">La serie marcada en verde es la mejor (1RM estimado) y es la que manda tu próximo objetivo.</p>`;
-  }
-  openSheet(h);
-
-  $("#addSet").onclick=()=>{
-    const box=$("#setsBox");const n=box.querySelectorAll(".setrow").length;
-    if(n>=12)return toast("Máximo 12 series");
-    box.insertAdjacentHTML("beforeend",setRowHTML(n,null,null));
-  };
-  $("#saveLog").onclick=()=>{
-    const out=[];
-    $("#setsBox").querySelectorAll(".setrow").forEach(row=>{
-      const w=row.querySelector(".set-w"),r=row.querySelector(".set-r");
-      const wv=w&&w.value!==""?parseFloat(w.value):null;
-      const rv=r&&r.value!==""?parseInt(r.value):null;
-      if(wv!=null||rv!=null)out.push({weight:wv,reps:rv});
-    });
-    if(!out.length)return toast("Anota al menos una serie");
-    const best=bestSet(out);
-    if(prev){Object.assign(prev,{weight:best.weight,reps:best.reps,sets:out});}
-    else S.history.push({id:uid(),date:fecha,exId:item.exId,weight:best.weight,reps:best.reps,sets:out});
-    S.checks[checkKey(dayId,idx)]=true;
-    save();closeSheet();renderHoy();
-    toast(prev?"Registro actualizado":`${e.name} registrado`);
-  };
-  const dl=$("#delLog");if(dl)dl.onclick=()=>confirmSheet({title:"Eliminar registro",message:`¿Borrar las series ${esHoy?"de hoy":"del "+fechaLarga(fecha)} de "${e.name}"?`,cta:"Eliminar",danger:true,onConfirm:()=>{
-    S.history=S.history.filter(l=>l!==prev);save();closeSheet();renderHoy();toast("Registro eliminado");
-  }});
-}
-
 /* ============================================================
    VISTA: RUTINAS
    ============================================================ */
@@ -1834,21 +1879,94 @@ function goalRateFromNutrition(){
   if(!S.profile)return "0.25";
   return {magro:"0.25",recomp:"0",deficit:"-0.5"}[S.profile.goal]||"0.25";
 }
-function renderProgreso(){
-  let h=`<div class="view-head"><div class="label">Tu evolución</div><div class="h1" style="margin-top:2px">Progreso</div>
-    <div class="sub" style="margin-top:4px">Registra tu peso y tus cargas; la app estima si vas en línea con la meta.</div></div>`;
-  h+=`<div class="label-mono" style="margin-bottom:10px">Asistencia</div>`;
-  h+=attendanceBlock();
-  h+=`<div class="section-gap"></div>`;
+/* ============================================================
+   VISTA: PERFIL  (fuera del dock, se entra por el header)
+   ============================================================
+   Peso corporal, medidas y respaldo. Son datos del cuerpo, no de la sesión: se tocan una vez por
+   semana, no cada entrenamiento, así que no merecen un quinto del dock (§11 del sistema: el
+   centro de ajustes vive fuera de la navegación principal). */
+function renderPerfil(){
+  let h=`<div class="view-head"><div class="label">Tu cuerpo</div><div class="h1" style="margin-top:2px">Perfil</div>
+    <div class="sub" style="margin-top:4px">Peso, medidas y el respaldo de todos tus datos.</div></div>`;
   h+=weightBlock();
   h+=measuresBlock();
-  h+=`<div class="label-mono section-gap" style="margin-bottom:10px">Fuerza por ejercicio</div>`;
-  h+=strengthBlock();
-  h+=`<div class="label-mono section-gap" style="margin-bottom:10px">Volumen semanal · rutina activa</div>`;
-  h+=volumeBlock();
   h+=backupCard();
-  $("#v-progreso").innerHTML=h;
-  bindProgreso();
+  h+=recuperarCard();
+  $("#v-perfil").innerHTML=h;
+  bindPerfil();
+}
+/* Entrada manual al rescate de `stickfit-v1`. Cierra el flanco del aviso de arranque: si aquella
+   hoja se cerró por el scrim, los datos viejos siguen alcanzables desde aquí en vez de quedar
+   enterrados en una clave que la app ya no lee. */
+function recuperarCard(){
+  if(!hayDatosV1())return "";
+  return `<div class="card section-gap" style="padding:16px">
+    <div class="h3" style="font-size:14px">Datos de la versión anterior</div>
+    <p class="sub" style="margin-top:6px;font-size:12px">Encontré tu perfil, peso y medidas guardados por la versión anterior de STICK FIT. Traerlos reemplaza lo que tengas ahora en esas tres cosas; no toca tus rutinas ni tu calendario.</p>
+    <button class="btn-secondary" style="width:100%;margin-top:12px" id="recuperarV1">Traer perfil, peso y medidas</button>
+  </div>`;
+}
+function bindPerfil(){
+  $("#v-perfil").querySelectorAll("[data-mz]").forEach(z=>z.onclick=()=>openMeasureZone(z.dataset.mz));
+  /* Plegar/desplegar se hace sobre el DOM ya pintado, no re-renderizando: si la clase
+     "open" llegara puesta desde el render, el navegador no tendría de dónde animar. */
+  const mf=$("#mzFold"),mb=$("#mzBody");
+  if(mf&&mb)mf.onclick=()=>{mzOpen=!mzOpen;mf.classList.toggle("open",mzOpen);mb.classList.toggle("open",mzOpen);};
+  const lw=$("#logWeight");if(lw)lw.onclick=openWeightSheet;
+  const eg=$("#editGoal");if(eg)eg.onclick=openGoalSheet;
+  const lm=$("#logMeasure");if(lm)lm.onclick=openMeasureSheet;
+  const hw=$("#histWeight");if(hw)hw.onclick=openWeightHistory;
+  const hm=$("#histMeasure");if(hm)hm.onclick=openMeasureHistory;
+  const ed=$("#expData");if(ed)ed.onclick=exportData;
+  const im=$("#impData"),imf=$("#impFile");
+  if(im&&imf){im.onclick=()=>imf.click();imf.onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value="";};}
+  const rv=$("#recuperarV1");if(rv)rv.onclick=()=>confirmSheet({
+    title:"Traer datos anteriores",
+    message:"Se reemplazarán tu perfil de nutrición, tu historial de peso corporal y tus medidas con los de la versión anterior. Tus rutinas y tu calendario no se tocan.",
+    cta:"Traer",
+    onConfirm:()=>{rescatarV1();renderPerfil();toast("Datos recuperados");}
+  });
+}
+function bindCalendario(){
+  const shiftMonth=n=>{
+    const now=new Date();
+    const y=calYM?calYM.y:now.getFullYear(), m=calYM?calYM.m:now.getMonth();
+    const d=new Date(y,m+n,1);
+    calYM=(d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth())?null:{y:d.getFullYear(),m:d.getMonth()};
+    renderCalendario();
+  };
+  const cp=$("#calPrev");if(cp)cp.onclick=()=>shiftMonth(-1);
+  const cn=$("#calNext");if(cn&&!cn.disabled)cn.onclick=()=>shiftMonth(1);
+  /* Desde el rediseño v2, tocar un cuadrito NO salta a Hoy: abre la hoja de ese día y se marca
+     ahí mismo. Hoy es solo hoy, y marcar el pasado es trabajo de esta pantalla. */
+  $("#v-calendario").querySelectorAll("[data-cal]").forEach(c=>c.onclick=()=>{
+    const iso=c.dataset.iso;
+    if(iso>todayKey())return toast(c.dataset.cal);
+    openDaySheet(iso);
+  });
+}
+/* Hoja de un día del calendario: marcar, marcar como libre, o quitar la marca. */
+function openDaySheet(iso){
+  const e=dayState(iso);
+  const marcado=e==="entrenado"||e==="libre";
+  const p=iso.split("-");
+  const dayId=DAY_IDS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
+  const day=activeRoutine().days[dayId];
+  const foco=day&&!day.rest?day.focus:"Descanso";
+  const etiqueta={entrenado:"Entrenado",libre:"Entrenaste por fuera",descanso:"Descanso programado",fallado:"Sin registro",pendiente:"Pendiente"}[e];
+  openSheet(`<div class="sheet-grab"></div><div class="sheet-head">
+    <div style="min-width:0"><span class="label-mono">${etiqueta}</span>
+      <div class="h2" style="margin-top:3px">${fechaLarga(iso)}</div>
+      <div class="sub" style="font-size:12px;margin-top:3px">Tocaba · <b style="color:var(--zinc-300)">${foco}</b></div></div>
+    <button class="close-x" data-close>×</button></div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+      <button class="btn-primary" id="dsDone" ${e==="entrenado"?"disabled":""}>${e==="entrenado"?"Ya está marcado":"Marcar como entrenado"}</button>
+      <button class="btn-secondary" id="dsFree">Entrené, pero no la rutina</button>
+      ${marcado?`<button class="btn-danger" id="dsClear">Quitar la marca</button>`:""}
+    </div>`);
+  $("#dsDone").onclick=()=>{marcarEntrenado(iso);closeSheet();renderCalendario();toast("Día marcado");};
+  $("#dsFree").onclick=()=>{closeSheet();openFreeSheet(iso);};
+  const dc=$("#dsClear");if(dc)dc.onclick=()=>{desmarcarDia(iso);closeSheet();renderCalendario();toast("Marca quitada");};
 }
 /* ---------- Asistencia (se deriva sola de checks + registros de peso) ---------- */
 const DAY_IDS=["dom","lun","mar","mie","jue","vie","sab"];
@@ -1931,13 +2049,12 @@ function attendanceBlock(){
       <button class="icon-btn" id="calPrev" title="Mes anterior" style="flex:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <button class="icon-btn" id="calNext" title="Mes siguiente" style="flex:none${isCur?";opacity:.35":""}" ${isCur?"disabled":""}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
-    <div class="calhead">${DAYS.map(([,l])=>`<span>${l[0]}</span>`).join("")}</div>
+    <div class="calhead">${DAYS.map(([,l])=>`<span>${l.slice(0,2)}</span>`).join("")}</div>
     <div class="calgrid">${cells}</div>
     <div class="callegend">
-      <span><i style="background:var(--emerald)"></i>Completo</span>
-      <span><i style="background:rgba(52,211,153,.16);border-color:rgba(52,211,153,.35)"></i>A medias</span>
+      <span><i style="background:var(--emerald)"></i>Entrenado</span>
       <span><i style="background:rgba(56,189,248,.16);border-color:rgba(56,189,248,.38)"></i>Libre</span>
-      <span><i style="background:var(--sup-2);border-color:rgba(251,113,133,.28)"></i>No fuiste</span>
+      <span><i style="background:var(--sup-2);border-color:rgba(251,113,133,.28)"></i>Sin registro</span>
       <span><i style="background:var(--sup);border-color:var(--brd)"></i>Descanso</span>
     </div>`;
   h+=`<div style="display:flex;gap:10px;margin-top:14px">
@@ -1946,7 +2063,7 @@ function attendanceBlock(){
     <div class="stat" style="flex:1;padding:12px 14px"><div class="label">Este mes</div>
       <div class="mono" style="font-size:20px;font-weight:800">${hechos}<small style="font-size:11px;color:var(--zinc-500);font-weight:700">${programados?" / "+programados:""}</small></div></div>
   </div>`;
-  h+=`<p class="muted" style="margin-top:12px;font-size:11px">Se marca solo: un día cuenta como entrenado en cuanto marcas un ejercicio o registras un peso. ¿Entrenaste sin seguir la rutina? En <b style="color:var(--zinc-400)">Hoy</b>, la tarjeta <b style="color:var(--sky)">"Entrené, pero no la rutina"</b> marca el día en azul. ¿Se te olvidó marcar un día? <b style="color:var(--zinc-400)">Tócalo en el calendario</b>: se abre en Hoy y lo que marques queda en esa fecha, aunque sea de semanas pasadas.</p></div>`;
+  h+=`<p class="muted" style="margin-top:12px;font-size:11px"><b style="color:var(--zinc-400)">Toca cualquier día</b> para marcarlo, incluido uno de semanas pasadas: se abre aquí mismo y eliges si entrenaste la rutina o algo distinto (<b style="color:var(--sky)">azul</b>). Los días de descanso los pone tu rutina y no cuentan en contra. Un día pasado que tenía plan y quedó sin marcar sale en <b style="color:var(--rose)">rojo</b> solo — no hace falta que registres nada para eso.</p></div>`;
   return h;
 }
 
@@ -1997,12 +2114,17 @@ function weightBlock(){
   h+=`</div>`;
   return h;
 }
+/* ---------- Fuerza por ejercicio (rediseño v2) ----------
+   Reescrito para el registro de un solo peso: sin 1RM de Epley, sin series y sin "próximo
+   objetivo", porque los tres se calculaban a partir de las repeticiones y esas ya no se
+   guardan. Lo que queda es lo que la hipertrofia necesita ver: el peso actual, cuánto ha
+   subido desde la primera vez, y la forma de la curva. */
 function strengthBlock(){
   const byEx={};
   (S.history||[]).forEach(l=>{if(l.weight!=null)(byEx[l.exId]=byEx[l.exId]||[]).push(l);});
   const ids=Object.keys(byEx);
   if(!ids.length){
-    return `<div class="card" style="padding:24px;text-align:center"><div class="ei" style="margin:0 auto 12px;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--sup);border:1px solid var(--brd)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--zinc-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></div><div class="h3" style="font-size:14px">Sin datos de fuerza aún</div><p class="sub" style="margin-top:6px">Tras entrenar, en <b style="color:var(--zinc-300)">Hoy</b> toca el botón de la derecha de cada ejercicio y anota tus series. Aquí verás cómo sube tu fuerza y tu próximo objetivo.</p></div>`;
+    return `<div class="card" style="padding:24px;text-align:center"><div class="ei" style="margin:0 auto 12px;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--sup);border:1px solid var(--brd)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--zinc-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></div><div class="h3" style="font-size:14px">Sin pesos anotados aún</div><p class="sub" style="margin-top:6px">En <b style="color:var(--zinc-300)">Hoy</b>, el botón de la derecha de cada ejercicio anota el peso con el que entrenaste. Es opcional: el día cuenta igual sin él.</p></div>`;
   }
   ids.sort((a,b)=>{const la=byEx[a],lb=byEx[b];return (lb[lb.length-1].date<la[la.length-1].date)?-1:1;});
   let h=`<div class="list-stagger">`;
@@ -2010,79 +2132,44 @@ function strengthBlock(){
     const e=getEx(id);if(!e)return;
     const logs=byEx[id].slice().sort((a,b)=>a.date<b.date?-1:1);
     const first=logs[0],last=logs[logs.length-1];
-    const chg=last.weight-first.weight;
-    const e1rm=Math.round(last.weight*(1+(last.reps||8)/30));
-    const sug=nextTarget(e,last);
+    const chg=+(last.weight-first.weight).toFixed(1);
     h+=`<div class="card" style="padding:15px;margin-bottom:9px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
         <div style="min-width:0"><div class="h3" style="font-size:14px">${e.name}</div>
-          <div class="ex-meta">${e.group} · ${logs.length} sesi${logs.length>1?'ones':'ón'}</div></div>
+          <div class="ex-meta">${e.group} · ${logs.length} sesi${logs.length>1?'ones':'ón'} · desde ${fechaCorta(first.date)}</div></div>
         <div style="text-align:right"><div class="mono" style="font-size:18px;font-weight:800">${last.weight}<small style="color:var(--zinc-500);font-size:11px"> ${LB}</small></div>
-          <div class="mono" style="font-size:11px;font-weight:700;color:${chg>0?'var(--emerald)':chg<0?'var(--rose)':'var(--zinc-500)'}">${chg>0?"▲ +"+chg.toFixed(1):chg<0?"▼ "+chg.toFixed(1):"sin cambio"}${chg!==0?" "+LB:""}</div></div>
+          <div class="mono" style="font-size:11px;font-weight:700;color:${chg>0?'var(--emerald)':chg<0?'var(--rose)':'var(--zinc-500)'}">${chg>0?"▲ +"+chg:chg<0?"▼ "+chg:"sin cambio"}${chg!==0?" "+LB:""}</div></div>
       </div>
-      <div class="label" style="letter-spacing:.1em;margin-bottom:4px">Última sesión · serie por serie</div>
-      ${setPills(last)}
-      <div style="margin-top:10px">${sparkline(logs.map(l=>l.weight),"#34d399")}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-        <div><div class="label" style="letter-spacing:.1em">1RM estimado</div><div class="mono" style="font-weight:700;font-size:13px;color:var(--zinc-300)">${e1rm} ${LB}</div></div>
-        <div style="text-align:right"><div class="label" style="letter-spacing:.1em">Próximo objetivo</div><div class="mono" style="font-weight:700;font-size:13px;color:var(--zinc-100)">${sug}</div></div>
-      </div>
+      ${logs.length>1?`<div style="margin-top:4px">${sparkline(logs.map(l=>l.weight),"#34d399")}</div>`:""}
     </div>`;
   });
   h+=`</div>`;
-  h+=`<div style="margin-top:6px;padding:12px 14px;border-radius:12px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.2)"><p class="sub" style="font-size:12px"><b style="color:#fff">Ritmo natural esperado:</b> ~5 lb cada 2-3 semanas en compuestos (banca, sentadilla, peso muerto) y más lento en aislamientos. Si superas el rango de reps, sube el peso; si no, suma una repetición.</p></div>`;
+  h+=`<div style="margin-top:6px;padding:12px 14px;border-radius:12px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.2)"><p class="sub" style="font-size:12px"><b style="color:#fff">Ritmo natural esperado:</b> ~5 ${LB} cada 2-3 semanas en compuestos (banca, sentadilla, peso muerto) y más lento en aislamientos. Si el rango de repeticiones se te queda corto, sube el peso.</p></div>`;
   return h;
 }
-function nextTargetObj(e,last){
-  if(!last||last.weight==null)return null;
-  const timeBased=typeof e.reps==="string"&&/s\s*$/.test(e.reps);
-  const m=(typeof e.reps==="string")?e.reps.match(/(\d+)\s*-\s*(\d+)/):null;
-  const upper=m?parseInt(m[2]):(parseInt(e.reps)||10);
-  const lower=m?parseInt(m[1]):upper;
-  if(timeBased)return {weight:last.weight,reps:last.reps||0};
-  if((last.reps||0)>=upper){
-    const inc=/Barra|Máquina|Prensa/i.test(e.eq)?5:2.5; // lb
-    return {weight:+(last.weight+inc).toFixed(1),reps:lower};
-  }
-  return {weight:last.weight,reps:(last.reps||0)+1};
+
+/* ============================================================
+   VISTA: CALENDARIO  (era "Progreso")
+   ============================================================
+   "Progreso" era un nombre tan vago que acabó recogiendo seis cosas distintas: asistencia, peso
+   corporal, medidas, fuerza, volumen y el respaldo. Al llamarla Calendario queda obligada a
+   hacer una sola cosa. Lo que es del cuerpo —peso, medidas— y el respaldo se fueron al Perfil. */
+function renderCalendario(){
+  let h=`<div class="view-head"><div class="label">Tu constancia</div><div class="h1" style="margin-top:2px">Calendario</div>
+    <div class="sub" style="margin-top:4px">Toca cualquier día para marcarlo. Los de descanso ya vienen puestos por tu rutina.</div></div>`;
+  h+=attendanceBlock();
+  h+=`<div class="label-mono section-gap" style="margin-bottom:10px">Peso por ejercicio</div>`;
+  h+=strengthBlock();
+  h+=`<div class="label-mono section-gap" style="margin-bottom:10px">Volumen semanal · rutina activa</div>`;
+  h+=volumeBlock();
+  $("#v-calendario").innerHTML=h;
+  bindCalendario();
 }
-function nextTarget(e,last){const o=nextTargetObj(e,last);return o?`${o.weight} ${LB} × ${o.reps}`:"—";}
 /* Último registro del ejercicio. `antes` limita la búsqueda a fechas anteriores: al completar un
    día pasado, el objetivo sugerido debe salir de la sesión previa a ESE día, no de una posterior. */
 function lastEntry(exId,antes){
   const l=(S.history||[]).filter(x=>x.exId===exId&&x.weight!=null&&(!antes||x.date<antes)).sort((a,b)=>a.date<b.date?-1:1);
   return l.length?l[l.length-1]:null;
-}
-function bindProgreso(){
-  const shiftMonth=n=>{
-    const now=new Date();
-    const y=calYM?calYM.y:now.getFullYear(), m=calYM?calYM.m:now.getMonth();
-    const d=new Date(y,m+n,1);
-    calYM=(d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth())?null:{y:d.getFullYear(),m:d.getMonth()};
-    renderProgreso();
-  };
-  const cp=$("#calPrev");if(cp)cp.onclick=()=>shiftMonth(-1);
-  const cn=$("#calNext");if(cn&&!cn.disabled)cn.onclick=()=>shiftMonth(1);
-  /* Tocar un cuadrito abre ESE día en Hoy para poder completarlo (aunque sea de otra semana).
-     Los días que aún no llegan no se abren: solo muestran su detalle. */
-  $("#v-progreso").querySelectorAll("[data-cal]").forEach(c=>c.onclick=()=>{
-    const iso=c.dataset.iso;
-    if(iso>dateOfDay("dom",0))return toast(c.dataset.cal);
-    openDate(iso);
-  });
-  $("#v-progreso").querySelectorAll("[data-mz]").forEach(z=>z.onclick=()=>openMeasureZone(z.dataset.mz));
-  /* Plegar/desplegar se hace sobre el DOM ya pintado, no re-renderizando: si la clase
-     "open" llegara puesta desde el render, el navegador no tendría de dónde animar. */
-  const mf=$("#mzFold"),mb=$("#mzBody");
-  if(mf&&mb)mf.onclick=()=>{mzOpen=!mzOpen;mf.classList.toggle("open",mzOpen);mb.classList.toggle("open",mzOpen);};
-  const lw=$("#logWeight");if(lw)lw.onclick=openWeightSheet;
-  const eg=$("#editGoal");if(eg)eg.onclick=openGoalSheet;
-  const lm=$("#logMeasure");if(lm)lm.onclick=openMeasureSheet;
-  const hw=$("#histWeight");if(hw)hw.onclick=openWeightHistory;
-  const hm=$("#histMeasure");if(hm)hm.onclick=openMeasureHistory;
-  const ed=$("#expData");if(ed)ed.onclick=exportData;
-  const im=$("#impData"),imf=$("#impFile");
-  if(im&&imf){im.onclick=()=>imf.click();imf.onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value="";};}
 }
 function openWeightSheet(){
   const last=(S.weightLog||[]).slice(-1)[0];
@@ -2097,7 +2184,7 @@ function openWeightSheet(){
     S.weightLog.push({date,kg:v});
     if(S.weightGoal&&S.weightGoal.startKg==null){S.weightGoal.startKg=v;S.weightGoal.startDate=date;}
     if(S.profile)S.profile.weight=v;
-    save();closeSheet();renderProgreso();toast("Peso registrado");
+    save();closeSheet();renderPerfil();toast("Peso registrado");
   };
 }
 function openGoalSheet(){
@@ -2114,7 +2201,7 @@ function openGoalSheet(){
     const startKg=g.startKg!=null?g.startKg:(cur?cur.kg:(S.profile?S.profile.weight:t));
     const startDate=g.startDate||todayKey();
     S.weightGoal={target:t,rate:$("#gr").value,startKg,startDate};
-    save();closeSheet();renderProgreso();toast("Meta guardada");
+    save();closeSheet();renderPerfil();toast("Meta guardada");
   };
 }
 
@@ -2272,8 +2359,8 @@ function openMeasureZone(k){
   const date=todayKey();
   const hoy=(S.measures||[]).find(l=>l.date===date);
   const cur=hoy&&hoy[k]!=null?hoy[k]:null;
-  selMZ=k;renderProgreso();
-  sheet2Hook=()=>{selMZ=null;renderProgreso();};
+  selMZ=k;renderPerfil();
+  sheet2Hook=()=>{selMZ=null;renderPerfil();};
   openSheet2(`<div class="sheet-grab"></div>
     <div class="sheet-head"><div class="h2">${label}</div><button class="close-x" data-close>×</button></div>
     <div style="display:flex;gap:14px;align-items:center;margin:2px 0 14px">
@@ -2329,7 +2416,7 @@ function openMeasureSheet(){
     MEASURES.forEach(([k])=>{const v=parseFloat($("#m-"+k).value);if(v){entry[k]=v;any=true;}});
     if(!any)return toast("Ingresa al menos una medida");
     S.measures=(S.measures||[]).filter(l=>l.date!==date);S.measures.push(entry);
-    save();closeSheet2();renderProgreso();toast("Medidas registradas");
+    save();closeSheet2();renderPerfil();toast("Medidas registradas");
   };
 }
 
@@ -2386,7 +2473,7 @@ function editWeightEntry(date){
     e.kg=v;syncGoalStart();
     const ult=(S.weightLog||[]).slice().sort((a,b)=>a.date<b.date?-1:1).slice(-1)[0];
     if(S.profile&&ult&&ult.date===date)S.profile.weight=v;
-    save();closeSheet2();openWeightHistory();renderProgreso();toast("Peso corregido");
+    save();closeSheet2();openWeightHistory();renderPerfil();toast("Peso corregido");
   };
 }
 
@@ -2394,7 +2481,7 @@ function deleteWeightEntry(date){
   confirmSheet({title:"Eliminar registro",message:`¿Eliminar el peso del ${fechaLarga(date)}?`,cta:"Eliminar",danger:true,
     onConfirm:()=>{
       S.weightLog=(S.weightLog||[]).filter(l=>l.date!==date);
-      syncGoalStart();save();renderProgreso();
+      syncGoalStart();save();renderPerfil();
       if((S.weightLog||[]).length)openWeightHistory();else closeSheet();
       toast("Registro eliminado");
     }});
@@ -2439,7 +2526,7 @@ function editMeasureEntry(date){
     MEASURES.forEach(([k])=>{const v=parseFloat($("#me-"+k).value);if(v){entry[k]=v;any=true;}});
     if(!any)return toast("Deja al menos una medida o elimina el registro");
     S.measures=(S.measures||[]).filter(l=>l.date!==date);S.measures.push(entry);
-    save();closeSheet2();openMeasureHistory();renderProgreso();toast("Medidas corregidas");
+    save();closeSheet2();openMeasureHistory();renderPerfil();toast("Medidas corregidas");
   };
 }
 
@@ -2447,7 +2534,7 @@ function deleteMeasureEntry(date){
   confirmSheet({title:"Eliminar registro",message:`¿Eliminar las medidas del ${fechaLarga(date)}?`,cta:"Eliminar",danger:true,
     onConfirm:()=>{
       S.measures=(S.measures||[]).filter(l=>l.date!==date);
-      save();renderProgreso();
+      save();renderPerfil();
       if((S.measures||[]).length)openMeasureHistory();else closeSheet();
       toast("Registro eliminado");
     }});
@@ -2543,10 +2630,57 @@ function mealPlanHTML(kcal,protein){
   return h;
 }
 
+/* ---------- La consecuencia del CTA (etapa 3 del rediseño v2) ----------
+   El problema que resuelve: el botón "Entrené" vive en Hoy, pero su efecto —el día encendido, la
+   racha, el porcentaje del mes— vive en el Calendario, que no está en pantalla. Sin esto, la
+   acción más importante de la app se siente como pulsar y que no pase nada.
+
+   Reparto de tiempos de la §17: la pulsación ya se resolvió (140ms, es respuesta a un gesto) y
+   aquí corren las consecuencias en ~400ms decelerando. Se repinta la tira SOLA, no la vista
+   entera: un `renderHoy()` completo destruiría el nodo del punto y la animación no tendría de
+   dónde partir — el mismo motivo por el que el dock separa montarDock() de renderDock(). */
+function celebrarMarca(iso){
+  const strip=$("#v-hoy .weekstrip");
+  const antes=+($("#wsNum")||{textContent:0}).textContent||0;
+  if(!strip){renderHoy();return;}
+  const cont=strip.parentNode;
+  const tmp=document.createElement("div");
+  tmp.innerHTML=weekStrip();
+  const nueva=tmp.firstElementChild;
+  cont.replaceChild(nueva,strip);
+  $("#v-hoy").querySelectorAll("[data-wd]").forEach(p=>p.onclick=()=>go("calendario"));
+
+  const reducido=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reducido){
+    const punto=nueva.querySelector(`[data-wd="${iso}"]`);
+    if(punto)punto.classList.add("recien");
+    const ahora=+$("#wsNum").textContent||0;
+    if(ahora>antes)nueva.querySelector(".wstreak").classList.add("sube");
+  }
+  // La tarjeta cambia de estado en el sitio, sin volver a montar la lista de ejercicios.
+  const mc=$("#markCard");
+  if(mc){
+    const t=document.createElement("div");
+    t.innerHTML=markCard(iso);
+    mc.parentNode.replaceChild(t.firstElementChild,mc);
+    const mk=$("#mkToggle");
+    if(mk)mk.onclick=()=>{desmarcarDia(iso);renderHoy();toast("Marca quitada");};
+  }
+  toast("Día marcado");
+}
+/* Envuelve un cambio de vista en una View Transition cuando el navegador la trae. Sin soporte
+   —o con movimiento reducido— ejecuta el cambio tal cual: la app nunca depende de la animación
+   para funcionar. */
+function conTransicion(fn){
+  const reducido=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reducido||!document.startViewTransition)return fn();
+  document.startViewTransition(fn);
+}
+
 /* ============================================================
    NAVEGACIÓN + INIT
    ============================================================ */
-const VIEWS=[["hoy","Hoy"],["progreso","Progreso"],["rutinas","Rutinas"],["ejercicios","Ejercicios"],["nutricion","Nutrición"]];
+const VIEWS=[["hoy","Hoy"],["calendario","Calendario"],["rutinas","Rutinas"],["ejercicios","Ejercicios"],["nutricion","Nutrición"]];
 /* El dock se construye UNA sola vez y despues solo se mueve la pildora.
    Antes se reescribia el innerHTML entero en cada cambio de vista: con eso
    la pildora se destruia y volvia a nacer en su nuevo sitio, que es
@@ -2558,7 +2692,7 @@ function montarDock(){
     VIEWS.map(([id,l])=>`<button class="dock-btn${id===curView?" on":""}" data-view="${id}" title="${l}" aria-label="${l}">${IC[id]}<span class="dl">${l}</span></button>`).join("");
   // El botón Hoy del dock siempre lleva a hoy, aunque se estuviera viendo otra semana.
   dock.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{
-    if(b.dataset.view==="hoy"){weekOffset=0;selectedDay=jsDayToId();}
+    if(b.dataset.view==="hoy")selectedDay=jsDayToId();
     go(b.dataset.view);
   });
   // Al cambiar de ancho (girar el telefono, abrir/cerrar teclado) las
@@ -2571,8 +2705,11 @@ function renderDock(inmediato){
   const dock=$("#dock");if(!dock)return;
   const pildora=$("#dockPildora");if(!pildora)return;
   let activo=null;
+  /* El Perfil no es una pestana: la pildora se queda donde estaba, pero el boton de debajo tiene
+     que seguir pintado en claro. Sin esto quedaba un icono gris sobre la pildora blanca. */
+  const marcado=VIEWS.some(x=>x[0]===curView)?curView:ultimaPestana;
   dock.querySelectorAll("[data-view]").forEach(b=>{
-    const on=b.dataset.view===curView;
+    const on=b.dataset.view===marcado;
     b.classList.toggle("on",on);
     b.setAttribute("aria-current",on?"page":"false");
     if(on)activo=b;
@@ -2589,13 +2726,23 @@ function renderDock(inmediato){
   pildora.style.setProperty("--pw",activo.offsetWidth+"px");
   if(inmediato){void pildora.offsetWidth;pildora.style.transition="";}
 }
+let ultimaPestana="hoy"; // ultima vista del dock, para que la pildora no quede huerfana en Perfil
 function go(v){
+  conTransicion(()=>_go(v));
+}
+function _go(v){
   curView=v;
-  document.querySelectorAll(".view").forEach(el=>el.classList.remove("on"));
-  const el=$("#v-"+v);el.classList.add("on");el.classList.remove("animate-page");void el.offsetWidth;el.classList.add("animate-page");
-  ({hoy:renderHoy,progreso:renderProgreso,rutinas:renderRutinas,ejercicios:renderEjercicios,nutricion:renderNutricion})[v]();
+  if(VIEWS.some(x=>x[0]===v))ultimaPestana=v;
+  document.querySelectorAll(".view").forEach(el=>{el.classList.remove("on");el.style.viewTransitionName="";});
+  const el=$("#v-"+v);el.classList.add("on");
+  /* Solo la vista visible lleva el nombre: dos elementos con el mismo view-transition-name a la
+     vez hacen que el navegador aborte la transicion entera sin avisar. */
+  el.style.viewTransitionName="vista";
+  el.classList.remove("animate-page");void el.offsetWidth;el.classList.add("animate-page");
+  ({hoy:renderHoy,calendario:renderCalendario,perfil:renderPerfil,rutinas:renderRutinas,ejercicios:renderEjercicios,nutricion:renderNutricion})[v]();
   renderDock();
-  $("#headerSub").textContent=VIEWS.find(x=>x[0]===v)[1].toUpperCase();
+  const vv=VIEWS.find(x=>x[0]===v);
+  $("#headerSub").textContent=(vv?vv[1]:v).toUpperCase();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -2669,6 +2816,10 @@ function ofrecerRescate(){
 /* ---------- Portada ---------- */
 $("#enterBtn").onclick=()=>{S.onboarded=true;save();$("#cover").style.display="none";$("#app").style.display="block";go("hoy");renderDock(true);};
 $("#coverBtn").onclick=()=>{$("#cover").style.display="flex";$("#app").style.display="none";};
+$("#perfilBtn").onclick=()=>openPerfil();
+/* El Perfil es una vista fuera del dock: la pildora se queda donde estaba, que es lo
+   correcto — no es una pestana, es un desvio del que se vuelve. */
+function openPerfil(){go("perfil");}
 
 /* ---------- Arranque ---------- */
 montarDock();

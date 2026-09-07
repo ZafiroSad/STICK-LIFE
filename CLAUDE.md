@@ -122,6 +122,59 @@ el Perfil, y la entrada manual al rescate (hoy, si la hoja se cierra por el scri
 preguntar en el siguiente arranque — se eligió repetir la pregunta antes que dejar los datos
 inalcanzables por un toque accidental).
 
+### Etapas 2 y 3 COMPLETAS y verificadas en vivo (2026-09-07)
+
+**Etapa 2 — navegación y pantallas**
+
+- **Dock:** `Hoy · Calendario · Rutinas · Ejercicios · Nutrición`. `progreso` desaparece como
+  identificador; su icono de curva pasa a ser un calendario.
+- **`renderHoy()` reducida a hoy:** fuera las flechas de semana, las siete píldoras de día y el
+  aviso de "estás completando otro día". `weekOffset` queda como `const 0` — `dateOfDay()` y
+  `checkKey()` lo siguen leyendo, pero ya nadie lo mueve.
+- **Peso único por ejercicio** (`pesoDe` / `pesoPrevio` / `guardarPeso` + `openPesoSheet`): un solo
+  número, pre-cargado con el de la última vez, con −/+ de 5 lb. Se sigue escribiendo en
+  `history[]` con la forma de siempre (`sets:[{weight}]`) para no partir el respaldo. La fila del
+  ejercicio muestra el delta contra la última vez (`+5 lb` en verde), que es lo único que la
+  hipertrofia necesita leer.
+- **`renderCalendario()`**: calendario protagonista + peso por ejercicio + volumen semanal.
+  Tocar un día abre **`openDaySheet()`** y se marca ahí mismo; ya no salta a Hoy.
+- **`renderPerfil()`** — vista fuera del dock, se entra por el header: peso corporal, medidas,
+  respaldo y `recuperarCard()`, la entrada manual al rescate de `stickfit-v1`.
+- `bindProgreso()` se partió en `bindCalendario()` y `bindPerfil()`.
+
+**Etapa 3 — movimiento**
+
+- **Muelles reales con `linear()`.** Tokens `--muelle` (spring .45 / bounce .18) y `--muelle-suave`
+  (bounce .14), generados muestreando un oscilador amortiguado, así que son la MISMA curva que
+  `{type:'spring'}` produce en el resto de la familia (§17.2). Sobrepaso ~1%: se asienta, no
+  rebota. La píldora del dock deja `cubic-bezier(.34,1.56,.64,1)` y pasa a `--muelle`.
+- **View Transitions API** en `go()`: salida 100ms, entrada 220ms con `y:10→0`, cruzándose
+  (equivalente al `popLayout` de §17.3). `_go()` hace el trabajo y `conTransicion()` lo envuelve;
+  sin soporte o con movimiento reducido, ejecuta el cambio tal cual.
+- **`celebrarMarca(iso)`** — la consecuencia del CTA. Repinta **solo** la tira de semana y la
+  tarjeta, no la vista entera: un `renderHoy()` completo destruiría el nodo del punto y la
+  animación no tendría de dónde partir (mismo motivo por el que el dock separa `montarDock()` de
+  `renderDock()`). El punto de hoy se llena y la racha rueda hacia arriba en ~400ms.
+
+**Código muerto eliminado:** `openExLog`, `setRowHTML`, `setPills`, `setsSummary`, `setsRange`,
+`weekLabel`, `openDate`, `weekOffsetOf`, `nextTarget`, `nextTargetObj`. `strengthBlock()`
+reescrita: sin 1RM de Epley, sin series y sin "próximo objetivo", porque los tres salían de las
+repeticiones y esas ya no se guardan.
+
+**Cuatro defectos corregidos durante la verificación en vivo:**
+1. `lbl[0]` daba `L M M J V S D` en la tira de semana y en la cabecera del calendario — martes y
+   miércoles indistinguibles. Pasan a dos letras.
+2. En Perfil ningún botón del dock quedaba `.on`, así que la píldora blanca se quedaba bajo un
+   icono gris. Se añadió `ultimaPestana`: la píldora no se mueve, pero el botón de debajo sigue
+   pintado en claro.
+3. La leyenda del calendario mantenía "A medias", un estado que ya no existe (desde v2 un día
+   marcado se pinta lleno).
+4. El párrafo de ayuda del calendario describía el modelo viejo entero ("se marca solo en cuanto
+   marcas un ejercicio", "se abre en Hoy"). Reescrito.
+
+Verificado en vivo a 375×812, recorriendo las cinco pestañas y el Perfil sin un solo error de
+consola, en oscuro y claro.
+
 ### Qué queda derogado de la versión anterior
 
 - La decisión nº 6 vieja ("Split 4 días Torso/Pierna") y la nº 10 ("registro de peso/reps con
