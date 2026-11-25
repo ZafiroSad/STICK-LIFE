@@ -1,54 +1,75 @@
-# Genera los iconos de STICK FIT dibujando la mancuerna del logo vectorialmente a cada tamano.
-# Maestro de referencia: LOGO.png (2000x2000). La geometria de abajo esta medida de ese archivo.
+# Genera el logo de STICK LIFE y todos sus iconos dibujandolos vectorialmente a cada tamano.
+# La marca: una cuadricula de habitos de 3x3 en la que las casillas cumplidas suben en escalera
+# hacia la derecha (constancia que crece). Casilla cumplida = solida; pendiente = solo contorno.
+# Misma estetica de la STICK SUITE: glifo blanco plano, esquinas redondeadas, sobre #1E1F1F.
+# Uso: powershell -ExecutionPolicy Bypass -File tools\gen-icons.ps1   (desde la raiz del proyecto)
 Add-Type -AssemblyName System.Drawing
 
-$OUT = "C:\Users\kevin\Documents\KEVIN\02. WORK\03. STICK INDUSTRIES\01. STICK SUITE\STICK FIT"
-$FG  = [System.Drawing.Color]::FromArgb(255, 255, 255) # #FFFFFF (logo 2026-08-06)
+$OUT = Split-Path -Parent $PSScriptRoot
+$FG  = [System.Drawing.Color]::FromArgb(255, 255, 255) # #FFFFFF
 $BG  = [System.Drawing.Color]::FromArgb(30, 31, 31)    # #1E1F1F
 
-# Geometria medida del logo original (espacio 2000x2000, centro 999.5)
-$TOTALW = 1150.0
-$PLATEW = 79.5
-$PLATES = @(  # dx (desde el centro), alto
-  @(-535.5, 262), @(-415.0, 390), @(-293.5, 518),
-  @( 293.5, 518), @( 415.0, 390), @( 535.5, 262)
+# Proporciones relativas a la casilla (c = 1)
+$GAP    = 0.28   # separacion entre casillas
+$RADIO  = 0.30   # radio de esquina
+$TRAZO  = 0.16   # grosor del contorno de una casilla pendiente
+$TOTAL  = 3 + 2*$GAP
+# 1 = cumplida (solida), 0 = pendiente (contorno). Fila 0 = arriba.
+$MAPA = @(
+  @(0, 0, 1),
+  @(0, 1, 1),
+  @(1, 1, 1)
 )
-$BARW = 424.0; $BARH = 76.0
+
+function Get-Redondeado([float]$x, [float]$y, [float]$w, [float]$r) {
+  $p = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $d = 2*$r
+  $p.AddArc($x, $y, $d, $d, 180, 90)
+  $p.AddArc($x + $w - $d, $y, $d, $d, 270, 90)
+  $p.AddArc($x + $w - $d, $y + $w - $d, $d, $d, 0, 90)
+  $p.AddArc($x, $y + $w - $d, $d, $d, 90, 90)
+  $p.CloseFigure()
+  return $p
+}
 
 function New-Icon($size, $coverage, $path) {
   $bmp = New-Object System.Drawing.Bitmap $size, $size
   $g = [System.Drawing.Graphics]::FromImage($bmp)
   $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+  $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
   $g.Clear($BG)
 
-  $s = ($size * $coverage) / $TOTALW      # escala origen -> destino
-  $cx = $size / 2.0; $cy = $size / 2.0
+  $c  = ($size * $coverage) / $TOTAL      # lado de una casilla en pixeles
+  $x0 = ($size - $TOTAL*$c) / 2.0
+  $y0 = ($size - $TOTAL*$c) / 2.0
   $brush = New-Object System.Drawing.SolidBrush $FG
+  $t = $TRAZO * $c
+  $pen = New-Object System.Drawing.Pen $FG, ([float]$t)
 
-  # Barra central (extremos rectos)
-  $g.FillRectangle($brush, [float]($cx - $BARW*$s/2), [float]($cy - $BARH*$s/2), [float]($BARW*$s), [float]($BARH*$s))
-
-  # Discos (extremos redondeados: radio = mitad del ancho)
-  $w = $PLATEW * $s
-  foreach ($p in $PLATES) {
-    $h = $p[1] * $s
-    $x = $cx + $p[0]*$s - $w/2
-    $y = $cy - $h/2
-    $path2 = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $path2.AddArc([float]$x, [float]$y, [float]$w, [float]$w, 180, 180)                 # cap superior
-    $path2.AddArc([float]$x, [float]($y + $h - $w), [float]$w, [float]$w, 0, 180)       # cap inferior
-    $path2.CloseFigure()
-    $g.FillPath($brush, $path2)
-    $path2.Dispose()
+  for ($fila = 0; $fila -lt 3; $fila++) {
+    for ($col = 0; $col -lt 3; $col++) {
+      $x = $x0 + $col*$c*(1 + $GAP)
+      $y = $y0 + $fila*$c*(1 + $GAP)
+      if ($MAPA[$fila][$col] -eq 1) {
+        $p = Get-Redondeado $x $y $c ($RADIO*$c)
+        $g.FillPath($brush, $p)
+      } else {
+        # El contorno se dibuja hacia adentro: el borde exterior coincide con el de una solida
+        $p = Get-Redondeado ($x + $t/2) ($y + $t/2) ($c - $t) ([Math]::Max(0.5, $RADIO*$c - $t/2))
+        $g.DrawPath($pen, $p)
+      }
+      $p.Dispose()
+    }
   }
 
-  $brush.Dispose(); $g.Dispose()
+  $pen.Dispose(); $brush.Dispose(); $g.Dispose()
   $bmp.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
   $bmp.Dispose()
   "{0}  ->  {1}px (cobertura {2})" -f (Split-Path $path -Leaf), $size, $coverage
 }
 
-New-Icon 512 0.575 (Join-Path $OUT "icon-512.png")
-New-Icon 192 0.575 (Join-Path $OUT "icon-192.png")
-New-Icon 180 0.60  (Join-Path $OUT "apple-touch-icon.png")
-New-Icon 64  0.86  (Join-Path $OUT "favicon.png")
+New-Icon 2000 0.50  (Join-Path $OUT "LOGO.png")
+New-Icon 512  0.56  (Join-Path $OUT "icon-512.png")
+New-Icon 192  0.56  (Join-Path $OUT "icon-192.png")
+New-Icon 180  0.60  (Join-Path $OUT "apple-touch-icon.png")
+New-Icon 64   0.82  (Join-Path $OUT "favicon.png")

@@ -1,4 +1,86 @@
-# STICK FIT — Bitácora del proyecto
+# STICK LIFE (antes STICK FIT) — Bitácora del proyecto
+
+## v3.0.0 — de app de gimnasio a panel de vida (2026-11-24)
+
+**Origen.** El Señor Stick no usaba la app como gimnasio y pidió que evolucionara a un **panel de
+vida**, con prioridad absoluta en **hábitos diarios**: crearlos, personalizarlos, marcarlos cada día
+y verlos por semana y por mes. Libertad creativa en el resto, con un criterio suyo: **«que sí se
+use»**. Se investigaron plantillas «Life OS» de Notion, apps de hábitos (Loop, Streaks) y proyectos
+de GitHub (Neohabit, JournalOS, Atomic Tracker, LifeForge).
+
+### Decisiones (no re-litigar sin discusión)
+1. **Nombre STICK LIFE.** Decidido por el Señor Stick sabiendo que renombrar el repo cambia la URL.
+   Hecho en la app (título, portada, header, manifest, caché SW `sticklife-v1`). **Pendiente con su
+   confirmación:** renombrar la carpeta a `05. STICK LIFE`, el repo `ZafiroSad/STICK-FIT` y la URL de
+   Pages. Mientras no se renombre, la app vive en la URL de siempre y conserva los datos del teléfono.
+2. **El gimnasio sigue entero, como módulo «Cuerpo».** No se borró nada: sus cinco vistas conservan
+   sus ids (`hoy`, `calendario`, `rutinas`, `ejercicios`, `nutricion`) y ahora cuelgan de una
+   sub-navegación segmentada (`#cuerpoNav`). El botón Cuerpo del dock abre la última sección usada
+   (`ultimaCuerpo`). Peso corporal, medidas y respaldo siguen en Perfil (header).
+3. **Dock de 4:** `Hoy · Hábitos · Cuerpo · Resumen` (ids `inicio`, `habitos`, `cuerpo`, `resumen`;
+   `cuerpo` no es vista, es un atajo).
+4. **Módulos elegidos por fricción mínima**, porque la lección de v2 fue que lo que pide escribir no
+   se usa: hábitos, **check-in de ánimo (un toque) + una línea opcional**, **tres prioridades del
+   día** y la tarjeta del entreno de hoy. **Descartados**: metas trimestrales y revisión semanal
+   (escritura larga que no se sostiene); finanzas (ya vive en STICK BUDGETS, no se duplica).
+5. **Tipos de hábito:** sí/no o **cantidad** con meta y unidad (agua 8 vasos, caminar 8.000 pasos).
+   **Frecuencias:** diario, días fijos de la semana, o **N veces por semana** (patrón de Loop y
+   Neohabit). Personalización: 24 íconos SVG propios (sin emojis) y 8 colores con variante clara.
+6. **Rachas y porcentajes se derivan del log, nunca se guardan** (misma regla que la asistencia
+   v1.10.0). Un día que no toca ni suma ni rompe; hoy sin marcar no rompe; los semanales cuentan
+   semanas cumplidas. Antes de `created` un hábito no "tocaba" (salvo días marcados hacia atrás).
+7. **El entreno no es un hábito duplicado:** la tarjeta "Cuerpo · hoy" escribe en el mismo `S.days`
+   del calendario del gimnasio. Dos verdades sobre el mismo hecho terminarían contradiciéndose.
+8. **Clave `sticklife-v1`.** Al primer arranque copia `stickfit-v2` si existe (mismo dispositivo y
+   URL): rutinas, asistencia, peso y medidas pasan solos. `stickfit-v2` **no se borra**.
+9. **Regla del scroll respetada:** marcar un hábito, una celda, el ánimo o una prioridad repinta solo
+   sus nodos (`vdRepintar`), nunca la vista. Medido: 0 px de salto.
+10. **Visual:** se mantuvo el lenguaje v2 «Campo y Vidrio» de la app; lo nuevo va en un apéndice CSS
+    con prefijo `vd-` (ya existían `.hrow`, `.weeknav`).
+
+### Modelo de datos nuevo (`S.life`)
+- `habits[]` `{id,name,icon,color,kind:"check"|"count",target,unit,freq:{type:"daily"|"days"|"weekly",days[0..6 lunes=0],times},created,archived}`
+- `log[iso][habitId]` = número (sí/no guarda 1; cantidad guarda lo acumulado).
+- `moods[iso]` = `{m:1..5, note}` · `prio[iso]` = `[{t,d}]` ×3.
+
+### Vistas nuevas (`index.html`, bloque «PANEL DE VIDA»)
+- **Hoy (`renderInicio`)**: saludo, anillo del día, hábitos que tocan hoy (los semanales mientras
+  falten veces), ideas de un toque cuando no hay hábitos, ánimo + nota, prioridades, Cuerpo · hoy.
+- **Hábitos (`renderHabitos`)**: segmentado Semana/Mes. Semana = cuadrícula tocable por hábito con
+  navegación hacia atrás y % por día; Mes = calendario por hábito con racha, mejor racha y % del mes.
+  Editor (`vdHojaHabito`): nombre, ícono, color, tipo, frecuencia, subir, archivar, eliminar.
+  Archivados conservan historial y se restauran.
+- **Resumen (`renderResumen`)**: % de la semana con delta contra la pasada, días perfectos del mes,
+  mejor racha activa, ánimo del mes, **año en píxeles** (ánimo o hábitos), constancia 30 días y diario.
+
+### Verificado en vivo (2026-11-24, 375×812, servidor local)
+Crear desde ideas y desde el editor; marcar en Hoy, en Semana y en Mes sin salto de scroll; hoja de
+cantidad; ánimo, nota y prioridades persistiendo; Entrené sincronizado con el calendario del
+gimnasio; las cinco secciones de Cuerpo y Perfil; migración desde `stickfit-v2` (días y peso
+intactos, `stickfit-v2` sin borrar). Sin desborde horizontal en 10 vistas × 2 temas, cero errores
+de consola. **Defecto corregido:** `.vd-stats3 div` pintaba cajas dentro de cajas → `.vd-stats3>div`.
+
+### Logo y renombrado (2026-11-24, autorizado por el Señor Stick: «cambia todo»)
+- **Marca nueva:** cuadrícula de hábitos 3×3 en la que las casillas cumplidas (sólidas) suben en
+  escalera hacia la derecha y las pendientes van en contorno. Misma estética de la suite: glifo
+  blanco plano, esquinas redondeadas, sobre `#1E1F1F`, ~50 % del lienzo. `tools/gen-icons.ps1`
+  dibuja **todo** desde la geometría (no hay maestro que medir): `LOGO.png` 2000, `icon-512`,
+  `icon-192`, `apple-touch-icon` 180 y `favicon` 64. La marca SVG del header y la portada es la
+  misma geometría (viewBox 35,6; casilla 10, separación 2,8, radio 3). La mancuerna queda solo
+  en el historial de git y como ícono del módulo Cuerpo.
+- **Repo `ZafiroSad/STICK-FIT` → `ZafiroSad/STICK-LIFE`**; Pages pasa a
+  https://zafirosad.github.io/STICK-LIFE/ . Carpeta `05. STICK FIT` → `05. STICK LIFE`.
+- **Los datos NO se pierden con el cambio de URL:** `localStorage` es por origen
+  (`zafirosad.github.io`), no por ruta, así que `/STICK-LIFE/` lee lo mismo que `/STICK-FIT/` y la
+  migración de `stickfit-v2` corre sola. Lo que sí cambia: la app instalada en la pantalla de
+  inicio apunta a la URL vieja y hay que volver a agregarla (la vieja devuelve 404).
+
+### Pendientes
+- Reinstalar la app en el teléfono (y en los de la familia) desde la URL nueva.
+- **Divergencia con el sistema:** STICK UI SYSTEM pasó a v3 «Negro puro» en oscuro (2026-11-14);
+  esta app sigue en v2. Migrarla es un trabajo aparte.
+- Recordatorios/notificaciones de hábitos: no hay (PWA sin servidor).
+- `.claude/launch.json` quedó en la carpeta por error y no se pudo borrar (protegida); va ignorada en git.
 
 ## Rediseño v2.0.0 — de bitácora de cargas a app de adherencia (2026-09-07)
 
@@ -284,6 +366,9 @@ píxel y viajando al cambiar de vista, botón de tema de 36px, padding de 20px. 
 sesión, `service-worker.js` ya figuraba modificado en git — ese cambio no es de esta pasada.
 
 ## Descripción y objetivo
+> **Desde v3.0.0 la app es STICK LIFE, un panel de vida** (ver la sección v3 al inicio). Lo que
+> sigue describe el origen del módulo Cuerpo.
+
 App personal de entrenamiento de **fuerza** para el Señor Stick. Objetivo: construir un físico
 atlético, magro y funcional —no de culturista— mediante sobrecarga progresiva. Pensada para usarse
 **desde el celular**. Reemplaza a un prototipo anterior de temática superheroica, ya descartada.
@@ -292,7 +377,7 @@ atlético, magro y funcional —no de culturista— mediante sobrecarga progresi
 repositorio. Los objetivos se describen por sus características físicas, no por referencias.
 
 ## Ubicación
-`C:\Users\kevin\Documents\KEVIN\02. WORK\03. STICK INDUSTRIES\01. STICK SUITE\STICK FIT\` (movida desde Downloads
+`C:\Users\kevin\Documents\KEVIN\02. WORK\03. STICK INDUSTRIES\01. STICK SUITE\05. STICK FIT\` (movida desde Downloads
 el 2026-08-01, junto a las demás apps de la familia Stick).
 
 ## Estado actual — ESTABLE (Tier 1 y 2 completos)
@@ -560,7 +645,7 @@ el 2026-08-01, junto a las demás apps de la familia Stick).
   apilado** (`#overlay2`/`#sheet2` + `openSheet2`/`closeSheet2`). Detectado por la suite de QA.
 - v1.3.1: **Temporizador eliminado por completo** a pedido del Señor Stick (descanso automático al
   marcar, FAB, modal, CSS y funciones). Se conserva la vibración breve al marcar. No reintroducir.
-- **Deploy:** GitHub Pages, repo público `ZafiroSad/STICK-FIT` → https://zafirosad.github.io/STICK-FIT/
+- **Deploy:** GitHub Pages, repo público `ZafiroSad/STICK-LIFE` (antes `STICK-FIT`, renombrado el 2026-11-24) → https://zafirosad.github.io/STICK-LIFE/
   (2026-08-01). Actualizar = commit + push a `main`; Pages redepliega solo. Repo git independiente
   (no confundir con el repo del home). Datos personales NO viven en el repo (solo localStorage).
 - v1.3.0 (Tier 1 de mejoras): **PWA real** (`manifest.json` + `service-worker.js` network-first +
@@ -582,7 +667,8 @@ el 2026-08-01, junto a las demás apps de la familia Stick).
   (PowerShell + System.Drawing) a partir de la geometría medida de `LOGO.png`. Ejecutar solo si
   cambia el logo; no forma parte de la app. Si cambia la **forma** (no solo el color) hay que volver
   a medir el maestro y actualizar las constantes del script.
-- Persistencia en **`localStorage`** bajo la clave `stickfit-v1`.
+- Persistencia en **`localStorage`** bajo la clave `sticklife-v1` (desde v3.0.0; antes `stickfit-v2`
+  y `stickfit-v1`, que se conservan sin borrar).
 - Se abre directo en el navegador del celular (doble click al archivo, o servir por HTTP).
 - Lenguaje visual: **sistema STICK v2 «Campo y Vidrio»** replicado en CSS puro (desde v1.17.0):
   campo de luz animado en vez de fondo plano, vidrio líquido en vez de paneles, rampa grafito bajo

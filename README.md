@@ -1,23 +1,25 @@
-<img src="icon-192.png" width="88" alt="STICK FIT">
+<img src="icon-192.png" width="88" alt="STICK LIFE">
 
-# STICK FIT
+# STICK LIFE
 
-App personal de entrenamiento de **fuerza** (dark-first, mobile-first). Un solo archivo estático,
-sin build ni dependencias; los datos se guardan en el navegador del dispositivo.
+Panel de vida personal (antes STICK FIT). Un solo archivo estático, sin build ni dependencias; los
+datos se guardan en el navegador del dispositivo.
 
-**Abrir:** https://zafirosad.github.io/STICK-FIT/
+**Abrir:** https://zafirosad.github.io/STICK-LIFE/
 
 ## Funciones
-- **Hoy** — checklist del entrenamiento del día con progreso.
-- **Progreso** — meta de peso corporal con tendencia y estimación de avance; fuerza por ejercicio
-  (1RM estimado y próximo objetivo por sobrecarga progresiva). Respaldo exportar / importar.
-- **Rutinas** — crea, edita y guarda varios planes semanales; rutina base incluida.
-- **Ejercicios** — catálogo de fuerza con diagrama muscular y técnica.
-- **Nutrición** — calorías y macros (Mifflin-St Jeor) + 3 días de comidas de ejemplo.
+- **Hoy** — anillo de avance del día, hábitos que tocan hoy con check de un toque (o cantidad),
+  check-in de ánimo con una línea de diario, tres prioridades y el entreno del día.
+- **Hábitos** — crear y personalizar (ícono, color, sí/no o cantidad con meta, diario / días fijos /
+  N veces por semana); vista semanal tocable y vista mensual con racha, mejor racha y % del mes.
+- **Cuerpo** — el gimnasio de siempre: entreno, calendario de asistencia, rutinas, ejercicios y
+  nutrición. Peso corporal y medidas en Perfil.
+- **Resumen** — semana contra la pasada, días perfectos, año en píxeles (ánimo o hábitos),
+  constancia de 30 días por hábito y diario.
 
 ## Uso desde el celular
 Abre la URL y usa "Agregar a pantalla de inicio". Funciona offline tras la primera carga.
-Exporta un respaldo desde **Progreso → Respaldo de datos** para no perder tu avance.
+Exporta un respaldo desde **Perfil → Respaldo de datos** para no perder tu avance.
 
 ---
 Contenido educativo. No sustituye asesoría médica ni de un entrenador certificado.
