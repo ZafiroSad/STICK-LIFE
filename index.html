@@ -24,14 +24,15 @@
    STICK FIT — sistema visual STICK (dark-first zinc) en CSS puro
    ============================================================ */
 :root{
-  /* Rampa grafito — mismos nombres que la escala zinc, valores del PORTAFOLIO */
-  --bg:#15161b; --bg-2:#1d1f26; --bg-3:#101116;
-  --zinc-950:#15161b; --zinc-900:#1d1f26; --zinc-850:#21242e; --zinc-800:#2a2e39;
-  --zinc-750:#333743; --zinc-700:#3c404c; --zinc-650:#464a57; --zinc-600:#565a66;
-  --zinc-550:#676b78; --zinc-500:#797d8a; --zinc-450:#9397a3; --zinc-400:#adb0bb;
-  --zinc-350:#babdc8; --zinc-300:#c9ccd6; --zinc-200:#dfe1e8; --zinc-100:#eef0f4;
-  --tinta:#f7f8fa; --contratinta:#15161b;
-  --emerald:#34d399; --rose:#fb7185; --amber:#fbbf24; --amber-250:#fddf6e; --sky:#38bdf8;
+  /* v3 «Negro puro» (STICK UI SYSTEM, 2026-11-14) en OSCURO: negro real, grises neutros de sistema
+     de Apple y colores de sistema de iOS. Mismos nombres que la escala zinc; el claro no cambió. */
+  --bg:#000000; --bg-2:#000000; --bg-3:#000000;
+  --zinc-950:#000000; --zinc-900:#1c1c1e; --zinc-850:#242426; --zinc-800:#2c2c2e;
+  --zinc-750:#343436; --zinc-700:#3a3a3c; --zinc-650:#444446; --zinc-600:#58585c;
+  --zinc-550:#6c6c70; --zinc-500:#8e8e93; --zinc-450:#a1a1a6; --zinc-400:#b4b4b9;
+  --zinc-350:#c1c1c6; --zinc-300:#cfcfd4; --zinc-200:#e0e0e5; --zinc-100:#ededf2;
+  --tinta:#ffffff; --contratinta:#000000;
+  --emerald:#30d158; --rose:#ff375f; --amber:#ffd60a; --amber-250:#fddf6e; --sky:#0a84ff;
   --brand:#ffffff; /* blanco del logo: va sobre su placa oscura en ambos temas */
   --font:'Century Gothic','AppleGothic','Trebuchet MS',system-ui,-apple-system,sans-serif;
 
@@ -43,29 +44,30 @@
      animacion de UI vive bajo 300ms; esto le pone NUMEROS a cada gesto
      para que un hover no dure lo mismo que un panel. */
   --t-toque:140ms; --t-hover:180ms; --t-menu:220ms; --t-panel:300ms; --t-lienzo:420ms;
-  /* Resplandor de signo — el mismo lenguaje que .gain/.loss (§2.1). */
-  --glow-gain:0 0 6px rgba(52,211,153,.55);
-  --glow-loss:0 0 6px rgba(251,113,133,.5);
-  --glow-amber:0 0 6px rgba(251,191,36,.5);
+  /* v3: en oscuro las cifras van planas, sin resplandor (sombra nula, no `none`, para que las
+     transiciones no salten). El claro conserva el suyo. */
+  --glow-gain:0 0 0 transparent;
+  --glow-loss:0 0 0 transparent;
+  --glow-amber:0 0 0 transparent;
 
-  /* Vidrio liquido */
-  --v-fondo:linear-gradient(148deg,rgba(255,255,255,.085) 0%,rgba(255,255,255,.028) 44%,rgba(255,255,255,.055) 100%);
-  --v-borde:rgba(255,255,255,.11);
-  --v-blur:blur(16px) saturate(175%);
-  --v-filo:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(255,255,255,.045),
-           inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(255,255,255,.05);
-  --v-sombra:0 22px 60px -26px rgba(0,0,0,.85);
-  --linea:rgba(255,255,255,.10); --linea-fuerte:rgba(255,255,255,.26);
+  /* v3: en oscuro la tarjeta es una placa opaca #1c1c1e sin borde, filo ni sombra (como Wallet).
+     Los nombres --v-* se conservan porque todo el CSS los consume; el claro trae su vidrio. */
+  --v-fondo:#1c1c1e;
+  --v-fondo-2:#2c2c2e;                 /* superficie dentro de otra superficie */
+  --v-borde:transparent;
+  --v-blur:none;
+  --v-filo:0 0 0 0 transparent;
+  --v-sombra:0 0 0 0 transparent;
+  --linea:rgba(84,84,88,.55); --linea-fuerte:rgba(120,120,128,.60);
 
-  /* Masas del campo */
-  --masa-1:hsl(214 22% 62% / .30); --masa-2:hsl(32 30% 64% / .22);
-  --masa-3:hsl(28 16% 58% / .20);  --masa-4:hsl(196 18% 60% / .18);
-  --masa-op:.55; --grano-op:.045;
+  /* Masas del campo: en oscuro no hay campo (no se pintan ni se animan, ver más abajo) */
+  --masa-1:hsl(220 8% 62% / .26); --masa-2:hsl(30 8% 64% / .18);
+  --masa-3:hsl(30 6% 58% / .16);  --masa-4:hsl(200 8% 60% / .16);
+  --masa-op:0; --grano-op:0;
 
-  /* Superficies internas (filas, celdas, chips de pantallas secundarias).
-     Un solo par de tokens evita repetir rgba oscuros que no invierten. */
-  --sup:rgba(255,255,255,.045);
-  --sup-2:rgba(255,255,255,.09);
+  /* Superficies internas (filas, celdas, chips dentro de una tarjeta): un escalón de gris. */
+  --sup:#2c2c2e;
+  --sup-2:#3a3a3c;
   --brd:var(--v-borde);
 }
 
@@ -81,6 +83,8 @@ html.light{
   --emerald:#059669; --rose:#e11d48; --amber:#d97706; --amber-250:#92400e; --sky:#0284c7;
 
   --v-fondo:linear-gradient(148deg,rgba(255,255,255,.86) 0%,rgba(255,255,255,.62) 44%,rgba(255,255,255,.78) 100%);
+  --v-fondo-2:rgba(255,255,255,.70);
+  --v-blur:blur(16px) saturate(175%);
   --v-borde:rgba(21,22,27,.10);
   --v-filo:inset 0 1px 0 rgba(255,255,255,.90),inset 0 -1px 0 rgba(21,22,27,.045),
            inset 1px 0 0 rgba(255,255,255,.55),inset -1px 0 0 rgba(21,22,27,.03);
@@ -979,6 +983,35 @@ html.light .vd-row{background:rgba(255,255,255,.72)}
   .vd-seg button:not(.on):hover{color:var(--tinta)}
 }
 @media (prefers-reduced-motion:reduce){ .vd-rank .br i{animation:none} }
+
+/* ════════════════════════════════════════════════════════════════════
+   OSCURO v3 «Negro puro» (2026-11-24, desde STICK UI SYSTEM §25)
+   Los tokens de :root ya hacen casi todo; esto corrige las piezas que
+   traían un blanco translúcido escrito a mano (sobre negro real se
+   volvían casi invisibles). Solo en oscuro: el claro no se toca.
+   ════════════════════════════════════════════════════════════════════ */
+html:not(.light){color-scheme:dark}
+html:not(.light) .masa,html:not(.light) .grano{display:none}
+html:not(.light) .campo{background:#000}
+/* Piezas sueltas sobre la página = placa de tarjeta */
+html:not(.light) .ex,html:not(.light) .vd-row,html:not(.light) .stat,
+html:not(.light) .weekstrip,html:not(.light) .daypill,html:not(.light) .freecard,
+html:not(.light) .markcard:not(.on){background:var(--v-fondo);border-color:transparent}
+/* Piezas dentro de una tarjeta o control = un escalón más de gris */
+html:not(.light) .chip,html:not(.light) .ex-target,html:not(.light) .ex-log:not(.logged),
+html:not(.light) .fchip:not(.sel),html:not(.light) .mchip,
+html:not(.light) .field input,html:not(.light) .field select,html:not(.light) .field textarea{background:var(--v-fondo-2);border-color:transparent}
+html:not(.light) .field input:focus,html:not(.light) .field select:focus,html:not(.light) .field textarea:focus{background:#3a3a3c;box-shadow:none}
+/* Las celdas y el segmentado viven sobre la página o dentro de tarjetas: escalón propio */
+html:not(.light) .vd-seg{background:var(--v-fondo)}
+html:not(.light) .vd-seg.mini{background:var(--v-fondo-2)}
+html:not(.light) .card .vd-seg.mini,html:not(.light) .sheet .vd-seg.mini{background:var(--v-fondo-2)}
+/* Dock y hojas: opacos, como el .glass-dock y el .panel-solido del núcleo */
+html:not(.light) nav.dock{background:rgba(28,28,30,.72);border-color:rgba(255,255,255,.09)}
+html:not(.light) .sheet{background:#1c1c1e;border-color:transparent}
+html:not(.light) .sheet .vd-row,html:not(.light) .sheet .stat,
+html:not(.light) .card .ex,html:not(.light) .card .stat,html:not(.light) .card .vd-row{background:var(--v-fondo-2)}
+html:not(.light) .brand .mark,html:not(.light) #cover .mark-lg{background:#1c1c1e;border-color:transparent;box-shadow:none}
 </style>
 </head>
 <body>

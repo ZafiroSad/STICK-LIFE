@@ -1,5 +1,25 @@
 # STICK LIFE (antes STICK FIT) — Bitácora del proyecto
 
+## v3.2.0 — modo oscuro v3 «Negro puro» del STICK UI SYSTEM (2026-11-24)
+
+Pedido del Señor Stick: la app seguía en el oscuro v2 (grafito `#15161b`, campo y vidrio). Ahora
+sigue el `nucleo/index.css` v3 (§25 del sistema): negro real `#000`, tarjetas opacas `#1c1c1e` sin
+borde ni filo ni sombra, `#2c2c2e` (`--v-fondo-2`) para lo que va dentro de una tarjeta, grises
+neutros de Apple en `--zinc-*`, colores de sistema de iOS (`--emerald:#30d158`, `--rose:#ff375f`,
+`--amber:#ffd60a`, `--sky:#0a84ff`; violeta, naranja y turquesa de hábito se quedaron en los suyos
+del apéndice), cifras sin resplandor, sin masas ni grano en oscuro, dock `rgba(28,28,30,.72)`.
+**El modo claro no cambió.**
+
+- Casi todo entró por los tokens de `:root`. Lo que tenía un blanco translúcido escrito a mano
+  (`.ex`, `.stat`, `.chip`, campos, `.weekstrip`…) se corrige en un bloque final
+  `html:not(.light) …` — solo oscuro, así que el claro no puede romperse por esto.
+- Regla aplicada: pieza suelta sobre la página = `--v-fondo`; pieza dentro de una tarjeta u hoja =
+  `--v-fondo-2`. Sin eso, las filas de ejercicio dentro de su tarjeta desaparecían (mismo gris).
+
+**Verificado en vivo** a 375 px: cuerpo `#000`, tarjeta y fila suelta `#1c1c1e`, fila dentro de
+tarjeta, ánimo y nota `#2c2c2e`, masas ocultas; 9 vistas × 2 temas sin desborde; el claro sigue con
+su vidrio. Cierra la divergencia «esta app sigue en v2» que estaba en Pendientes.
+
 ## v3.1.0 — hábito fijo «Entrenar» sincronizado con el gimnasio (2026-11-24)
 
 Pedido del Señor Stick: el gimnasio es un hábito por defecto, y marcarlo en un lado lo marca en el
@@ -99,8 +119,7 @@ de consola. **Defecto corregido:** `.vd-stats3 div` pintaba cajas dentro de caja
 
 ### Pendientes
 - Reinstalar la app en el teléfono (y en los de la familia) desde la URL nueva.
-- **Divergencia con el sistema:** STICK UI SYSTEM pasó a v3 «Negro puro» en oscuro (2026-11-14);
-  esta app sigue en v2. Migrarla es un trabajo aparte.
+- ~~Divergencia con el sistema (oscuro en v2)~~ — **cerrada en v3.2.0**.
 - Recordatorios/notificaciones de hábitos: no hay (PWA sin servidor).
 - `.claude/launch.json` quedó en la carpeta por error y no se pudo borrar (protegida); va ignorada en git.
 
