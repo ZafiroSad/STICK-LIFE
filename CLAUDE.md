@@ -10,9 +10,8 @@ de GitHub (Neohabit, JournalOS, Atomic Tracker, LifeForge).
 
 ### Decisiones (no re-litigar sin discusión)
 1. **Nombre STICK LIFE.** Decidido por el Señor Stick sabiendo que renombrar el repo cambia la URL.
-   Hecho en la app (título, portada, header, manifest, caché SW `sticklife-v1`). **Pendiente con su
-   confirmación:** renombrar la carpeta a `05. STICK LIFE`, el repo `ZafiroSad/STICK-FIT` y la URL de
-   Pages. Mientras no se renombre, la app vive en la URL de siempre y conserva los datos del teléfono.
+   Hecho en la app (título, portada, header, manifest, caché SW `sticklife-v1`), en el repo, la URL
+   de Pages y la carpeta (ver «Logo y renombrado»).
 2. **El gimnasio sigue entero, como módulo «Cuerpo».** No se borró nada: sus cinco vistas conservan
    sus ids (`hoy`, `calendario`, `rutinas`, `ejercicios`, `nutricion`) y ahora cuelgan de una
    sub-navegación segmentada (`#cuerpoNav`). El botón Cuerpo del dock abre la última sección usada
@@ -377,7 +376,7 @@ atlético, magro y funcional —no de culturista— mediante sobrecarga progresi
 repositorio. Los objetivos se describen por sus características físicas, no por referencias.
 
 ## Ubicación
-`C:\Users\kevin\Documents\KEVIN\02. WORK\03. STICK INDUSTRIES\01. STICK SUITE\05. STICK FIT\` (movida desde Downloads
+`C:\Users\kevin\Documents\KEVIN\02. WORK\03. STICK INDUSTRIES\01. STICK SUITE\05. STICK LIFE\` (antes `05. STICK FIT`, renombrada el 2026-11-24; movida desde Downloads
 el 2026-08-01, junto a las demás apps de la familia Stick).
 
 ## Estado actual — ESTABLE (Tier 1 y 2 completos)
@@ -734,7 +733,7 @@ el 2026-08-01, junto a las demás apps de la familia Stick).
 - **Tier 1:** PWA real (instalable, offline, ícono propio), progresión conectada al día. (El timer
   integrado se construyó y luego se retiró a pedido del Señor Stick.)
 - **Tier 2:** medidas corporales, volumen semanal por grupo muscular, registro set por set.
-- **Deploy:** GitHub Pages + repo git independiente `ZafiroSad/STICK-FIT`.
+- **Deploy:** GitHub Pages + repo git independiente `ZafiroSad/STICK-LIFE` (antes `STICK-FIT`).
 
 ## Pendientes / ideas futuras (Tier 3, opcional)
 - Plan de comidas con kcal reales por alimento y porciones escaladas.
