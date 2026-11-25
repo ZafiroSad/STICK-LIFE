@@ -3182,8 +3182,17 @@ function vida(){
   if(!S.life||typeof S.life!=="object")S.life={};
   const L=S.life;
   L.habits=L.habits||[];L.log=L.log||{};L.moods=L.moods||{};L.prio=L.prio||{};
+  /* Hábito fijo «Entrenar» (v3.1): siempre existe y NO guarda nada propio. Su valor se lee de la
+     asistencia del módulo Cuerpo (S.days) y al marcarlo se escribe ahí mismo, así que marcar el
+     día en el gimnasio lo marca en Hábitos y al revés: es un solo dato visto desde dos lugares. */
+  if(!L.habits.some(h=>h.sistema==="gym")){
+    const dias=Object.keys(S.days||{}).sort();
+    L.habits.unshift({id:"gym",sistema:"gym",name:"Entrenar",icon:"pesa",color:"sky",kind:"check",
+      freq:{type:"rutina"},created:dias[0]||todayKey(),archived:false});
+  }
   return L;
 }
+const vdEsGym=h=>h&&h.sistema==="gym";
 const VD_COLORES=["emerald","sky","violet","amber","orange","rose","teal","slate"];
 const VD_DIAS=["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
 const VD_ANIMO=[null,{n:"Mal",c:"rose"},{n:"Regular",c:"orange"},{n:"Normal",c:"amber"},{n:"Bien",c:"teal"},{n:"Muy bien",c:"emerald"}];
@@ -3237,9 +3246,13 @@ function fmtCorto(n){return n>=1000?(Math.round(n/100)/10).toLocaleString("es-CO
 function vdDia(iso){return (isoToDate(iso).getDay()+6)%7;}            // 0 = lunes
 function vdLunes(iso){return addDaysIso(iso,-vdDia(iso));}
 function vdHabitos(){return vida().habits.filter(h=>!h.archived);}
+function vdPropios(){return vdHabitos().filter(h=>!vdEsGym(h)).length;}
 function vdBuscar(id){return vida().habits.find(h=>h.id===id);}
 function vdSemanal(h){return (h.freq||{}).type==="weekly";}
-function vdValor(h,iso){const d=vida().log[iso];return d&&d[h.id]||0;}
+function vdValor(h,iso){
+  if(vdEsGym(h)){const r=dayRecord(iso);return r&&(r.s==="done"||r.s==="free")?1:0;}
+  const d=vida().log[iso];return d&&d[h.id]||0;
+}
 function vdMeta(h){return h.kind==="count"?Math.max(1,+h.target||1):1;}
 function vdHecho(h,iso){return vdValor(h,iso)>=vdMeta(h);}
 /* Antes de crearse, un hábito no "tocaba": esos días no cuentan como fallados. Un día viejo
@@ -3249,10 +3262,15 @@ function vdToca(h,iso){
   if(!vdNacio(h,iso))return false;
   const f=h.freq||{};
   if(f.type==="days")return (f.days||[]).includes(vdDia(iso));
+  if(f.type==="rutina")return !esDescanso(iso);   // toca los días que la rutina activa no descansa
   return true;
 }
 function vdVecesSemana(h,iso){const l=vdLunes(iso);let n=0;for(let i=0;i<7;i++)if(vdHecho(h,addDaysIso(l,i)))n++;return n;}
 function vdPoner(h,iso,v){
+  if(vdEsGym(h)){                                    // escribe en la asistencia del gimnasio
+    if(+v>0){if(!vdValor(h,iso))marcarEntrenado(iso);}else desmarcarDia(iso);
+    return;
+  }
   const L=vida();v=Math.max(0,+v||0);
   if(!L.log[iso])L.log[iso]={};
   if(v>0)L.log[iso][h.id]=v;
@@ -3337,13 +3355,14 @@ function vdPctRango(a,b){
 function vdLista(iso){
   return vdHabitos().filter(h=>{
     if(vdSemanal(h))return vdVecesSemana(h,iso)<(h.freq.times||1)||vdValor(h,iso)>0;
-    return vdToca(h,iso);
+    return vdToca(h,iso)||vdValor(h,iso)>0;   // un día que no tocaba pero se hizo igual, se ve
   });
 }
 function vdFreqTxt(h){
   const f=h.freq||{};
   if(f.type==="days")return (f.days||[]).slice().sort((a,b)=>a-b).map(i=>VD_DIAS[i]).join(" ");
   if(f.type==="weekly")return `${f.times} ${f.times===1?"vez":"veces"} por semana`;
+  if(f.type==="rutina")return "Según tu rutina";
   return "Todos los días";
 }
 function vdMetaTxt(h,iso){
@@ -3380,8 +3399,8 @@ function vdHeroSub(){
   return best?`Mejor racha activa: ${escH(best.h.name)}, ${best.r.n} ${best.r.u}`:"Marca cada hábito en cuanto lo cumplas.";
 }
 function vdVacio(){
-  return `<div class="card vd-empty">
-    <div class="h3">Crea tu primer hábito</div>
+  return `<div class="card vd-empty section-gap">
+    <div class="h3">Agrega tus hábitos</div>
     <p class="sub" style="margin:6px 0 2px">Empieza con dos o tres. Toca una idea para agregarla tal cual, o crea uno a tu medida.</p>
     <div class="fchips">${VD_IDEAS.map((x,i)=>`<button class="fchip" data-idea="${i}">${x.name}</button>`).join("")}</div>
     <button class="btn-primary" data-nuevo="1">Crear hábito</button></div>`;
@@ -3420,7 +3439,7 @@ function vdCuerpoCard(iso){
   return `<div class="card section-gap tap" id="vdCuerpo" style="padding:14px 15px;display:flex;align-items:center;gap:12px;--hc:var(--c-sky)">
     <div class="vd-ico">${icoVida("pesa")}</div>
     <div class="vd-body"><div class="label">Cuerpo · hoy</div><div class="vd-name" style="margin-top:2px">${escH(desc?"Descanso":day.focus)}</div><div class="vd-meta">${estado}</div></div>
-    ${desc&&!marcado?"":`<button class="${marcado?"btn-secondary":"btn-primary"} vd-mini" id="vdEntrene">${marcado?"Quitar":"Entrené"}</button>`}
+    ${IC.chevron}
   </div>`;
 }
 function vdSaludo(){const h=new Date().getHours();return h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches";}
@@ -3432,8 +3451,7 @@ function renderInicio(){
   const hoy=todayKey(),d=new Date();
   let h=`<div class="view-head"><div class="label">${DAYNAME[jsDayToId()]} · ${d.getDate()} de ${MESES_LARGO[d.getMonth()].toLowerCase()}</div>
     <div class="h1" style="margin-top:2px">${vdSaludo()}</div></div>`;
-  if(!vdHabitos().length)h+=vdVacio();
-  else{
+  {
     const lista=vdLista(hoy),n=lista.filter(x=>vdHecho(x,hoy)).length;
     h+=`<div class="card vd-hero">${vdAnillo(lista.length?n/lista.length:0)}
       <div style="min-width:0"><div class="h3" id="vdHeroT">${vdHeroTxt(n,lista.length)}</div>
@@ -3441,6 +3459,7 @@ function renderInicio(){
     h+=`<div class="section-gap"><div class="card-head" style="margin-bottom:10px"><div class="label">Hábitos de hoy</div>
       <div class="acts"><button class="btn-secondary vd-mini" data-nuevo="1">+ Nuevo</button></div></div>
       <div class="list-stagger">${lista.map(x=>vdFila(x,hoy)).join("")||`<p class="sub">Hoy no toca ninguno de tus hábitos.</p>`}</div></div>`;
+    if(!vdPropios())h+=vdVacio();
   }
   h+=vdCheckin(hoy)+vdPrioridades(hoy)+vdCuerpoCard(hoy);
   $("#v-inicio").innerHTML=h;
@@ -3450,7 +3469,7 @@ let vdTNota=null,vdTPrio=null;
 function bindInicio(){
   const v=$("#v-inicio"),hoy=todayKey();
   v.onclick=e=>{
-    const t=e.target.closest("[data-marcar],[data-cant],[data-editar],[data-animo],[data-pd],[data-idea],[data-nuevo],#vdEntrene,#vdCuerpo");
+    const t=e.target.closest("[data-marcar],[data-cant],[data-editar],[data-animo],[data-pd],[data-idea],[data-nuevo],#vdCuerpo");
     if(!t)return;
     if(t.dataset.marcar)return vdAlternar(t.dataset.marcar,hoy);
     if(t.dataset.cant)return vdHojaCantidad(t.dataset.cant,hoy);
@@ -3470,12 +3489,6 @@ function bindInicio(){
       if(!p[i].t.trim())return toast("Escribe la prioridad primero");
       p[i].d=!p[i].d;vdGuardarPrio(hoy);
       t.closest(".vd-prio").classList.toggle("done",p[i].d);
-      return;
-    }
-    if(t.id==="vdEntrene"){
-      const e2=dayState(hoy);
-      if(e2==="entrenado"||e2==="libre")desmarcarDia(hoy);else marcarEntrenado(hoy);
-      $("#vdCuerpo").outerHTML=vdCuerpoCard(hoy);
       return;
     }
     if(t.id==="vdCuerpo")go("hoy");
@@ -3592,17 +3605,18 @@ function vdHojaHabito(id){
       <div class="vd-icos" style="--hc:var(--c-${dr.color})">${Object.keys(VD_ICO).map(k=>`<button data-ico="${k}" class="${dr.icon===k?"sel":""}" aria-label="Ícono ${k}">${icoVida(k)}</button>`).join("")}</div>
       <span class="vd-lbl">Color</span>
       <div class="vd-cols">${VD_COLORES.map(c=>`<button data-col="${c}" class="${dr.color===c?"sel":""}" style="--hc:var(--c-${c})" aria-label="Color ${c}"></button>`).join("")}</div>
+      ${vdEsGym(dr)?`<p class="sub" style="font-size:12px;margin-top:16px">Este hábito es el mismo registro del módulo Cuerpo: marcarlo aquí marca el día entrenado en el gimnasio, y al revés. Toca los días que tu rutina activa no es de descanso. No se puede archivar ni eliminar.</p>`:`
       <span class="vd-lbl">Tipo</span>
       <div class="vd-seg mini"><button data-kind="check" class="${dr.kind!=="count"?"on":""}">Sí / No</button><button data-kind="count" class="${dr.kind==="count"?"on":""}">Cantidad</button></div>
       ${extraTipo}
       <span class="vd-lbl">Frecuencia</span>
       <div class="vd-seg mini"><button data-fq="daily" class="${f.type==="daily"?"on":""}">Diario</button><button data-fq="days" class="${f.type==="days"?"on":""}">Algunos días</button><button data-fq="weekly" class="${f.type==="weekly"?"on":""}">Por semana</button></div>
-      ${extraFq}
+      ${extraFq}`}
       <button class="btn-primary" id="vhOk" style="width:100%;margin-top:24px">${orig?"Guardar cambios":"Crear hábito"}</button>
       ${orig?`<div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn-secondary" style="flex:1" id="vhSubir">Subir</button>
-        <button class="btn-secondary" style="flex:1" id="vhArch">${orig.archived?"Restaurar":"Archivar"}</button>
-        <button class="btn-danger" style="flex:1" id="vhDel">Eliminar</button></div>`:""}`;
+        ${vdEsGym(orig)?"":`<button class="btn-secondary" style="flex:1" id="vhArch">${orig.archived?"Restaurar":"Archivar"}</button>
+        <button class="btn-danger" style="flex:1" id="vhDel">Eliminar</button>`}</div>`:""}`;
     $("#vhNom").oninput=e=>{dr.name=e.target.value;};
     const m=$("#vhMeta");if(m)m.oninput=e=>{dr.target=+e.target.value||0;};
     const u=$("#vhUni");if(u)u.oninput=e=>{dr.unit=e.target.value;};
@@ -3624,10 +3638,11 @@ function vdHojaHabito(id){
       dr.name=(dr.name||"").trim();
       if(!dr.name)return toast("Ponle un nombre");
       if(dr.kind==="count"&&!(dr.target>0))return toast("La meta tiene que ser mayor que cero");
-      if(f.type==="days"&&!f.days.length)return toast("Elige al menos un día");
+      if(f.type==="days"&&!f.days.length&&!vdEsGym(orig))return toast("Elige al menos un día");
       const limpio={name:dr.name,icon:dr.icon,color:dr.color,kind:dr.kind==="count"?"count":"check",
         freq:f.type==="days"?{type:"days",days:f.days.slice().sort((a,b)=>a-b)}:f.type==="weekly"?{type:"weekly",times:f.times}:{type:"daily"}};
       if(limpio.kind==="count"){limpio.target=dr.target;limpio.unit=(dr.unit||"").trim();}
+      if(vdEsGym(orig)){limpio.kind="check";limpio.freq={type:"rutina"};}   // tipo y frecuencia fijos
       if(orig){["target","unit"].forEach(k=>delete orig[k]);Object.assign(orig,limpio);}
       else L.habits.push(Object.assign(limpio,{id:uid(),created:todayKey(),archived:false}));
       save();closeSheet();toast(orig?"Hábito actualizado":"Hábito creado");vdRefrescar();return;
@@ -3742,10 +3757,10 @@ function renderHabitos(){
   let h=`<div class="view-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
     <div><div class="label">Tu constancia</div><div class="h1" style="margin-top:2px">Hábitos</div></div>
     <button class="btn-secondary vd-mini" data-nuevo="1">+ Nuevo</button></div>`;
-  if(!hs.length)h+=vdVacio();
-  else{
+  {
     h+=`<div class="vd-seg"><button data-modo="semana" class="${vdModo==="semana"?"on":""}">Semana</button><button data-modo="mes" class="${vdModo==="mes"?"on":""}">Mes</button></div>`;
     h+=vdModo==="semana"?vdVistaSemana(hs):vdVistaMes(hs);
+    if(!vdPropios())h+=`<div class="section-gap">${vdVacio()}</div>`;
   }
   const arch=vida().habits.filter(x=>x.archived).length;
   if(arch)h+=`<button class="btn-secondary section-gap" data-arch="1" style="width:100%">Archivados (${arch})</button>`;

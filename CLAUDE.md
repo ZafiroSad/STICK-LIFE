@@ -1,5 +1,28 @@
 # STICK LIFE (antes STICK FIT) — Bitácora del proyecto
 
+## v3.1.0 — hábito fijo «Entrenar» sincronizado con el gimnasio (2026-11-24)
+
+Pedido del Señor Stick: el gimnasio es un hábito por defecto, y marcarlo en un lado lo marca en el
+otro. **Supera la decisión 7 de v3.0.0** (allí el entreno NO era hábito, solo una tarjeta).
+
+- **Un solo dato, dos vistas.** El hábito `{id:"gym", sistema:"gym"}` no escribe en `S.life.log`:
+  `vdValor` lo lee de `S.days` (entrenado o libre = hecho) y `vdPoner` escribe con
+  `marcarEntrenado`/`desmarcarDia`. Por eso no hay sincronización que pueda desfasarse.
+- **Frecuencia `rutina`:** toca los días en que la rutina activa no descansa (`esDescanso`). Un día
+  de descanso entrenado igual aparece en Hoy y cuenta como hecho.
+- **Siempre existe:** `vida()` lo crea al inicio de la lista si falta, con `created` = el primer día
+  registrado en el gimnasio (así su racha y su % no cuentan como fallados días previos a la app).
+  En el editor se puede cambiar nombre, ícono y color; tipo y frecuencia quedan fijos y no se
+  puede archivar ni eliminar.
+- La tarjeta «Cuerpo · hoy» perdió su botón «Entrené» (dos botones para lo mismo en una pantalla):
+  queda como enlace al Entreno. El estado vacío pasa a «Agrega tus hábitos» y se muestra mientras
+  no haya hábitos propios además de Entrenar.
+
+**Verificado en vivo:** marcar el hábito → el día queda `entrenado` y la tarjeta del gimnasio sale
+marcada; quitar desde el gimnasio → el hábito se desmarca; marcar desde el gimnasio → el hábito
+sale hecho; marcar y desmarcar ayer desde la semana de Hábitos mueve la asistencia de ayer;
+persiste al recargar; un solo hábito gym; domingo de descanso no toca; sin desborde a 375 px.
+
 ## v3.0.0 — de app de gimnasio a panel de vida (2026-11-24)
 
 **Origen.** El Señor Stick no usaba la app como gimnasio y pidió que evolucionara a un **panel de
