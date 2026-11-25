@@ -1,5 +1,28 @@
 # STICK LIFE (antes STICK FIT) — Bitácora del proyecto
 
+## v3.3.0 — solo hábitos; vista Año con metas de racha (2026-11-24)
+
+El Señor Stick probó el panel y dijo que **no le gustan el ánimo ni las prioridades**: por ahora
+solo usaría los hábitos. Se le propusieron cuatro ideas (recordatorio con Atajos, mapa anual por
+hábito, hábitos por momento del día, hábitos de dejar) y **eligió solo el mapa anual**.
+**Esto deroga la decisión 4 de v3.0.0** en lo que toca a ánimo y prioridades.
+
+- **Fuera de la interfaz:** check-in de ánimo y tres prioridades en Hoy; en Resumen, el ánimo del
+  mes, el año en píxeles por ánimo y el diario. Su CSS y su JS se borraron. **Los datos ya escritos
+  (`life.moods`, `life.prio`) se conservan**, solo que nada los muestra.
+- **Resumen:** el cuarto número pasa a «Constancia 30 días»; el año en píxeles queda solo por
+  hábitos cumplidos (`vdRejillaAnio`, que ahora comparten Resumen y Hábitos).
+- **Hábitos → Año** (tercer botón del segmentado): una tarjeta por hábito con la racha y la
+  **siguiente meta** (7 · 14 · 30 · 60 · 100 · 200 · 365 días; 4 · 8 · 12 · 26 · 52 semanas en los
+  semanales) con su barra, las metas ya logradas según la mejor racha, mejor racha, días cumplidos
+  en el año y constancia, y la rejilla del año (12 filas × 31 días; se eligió sobre la tira de 53
+  semanas de GitHub porque a 375 px esa deja cuadros de 4 px). Tocar un día dice su estado; los
+  días anteriores a crear el hábito salen apagados, no como fallados.
+
+**Verificado en vivo** a 375 px en oscuro: Hoy y Resumen sin rastro de ánimo ni prioridades, 41
+registros viejos de ánimo intactos en el almacenamiento, seis tarjetas de año con metas y rejilla,
+navegación a 2025 y de vuelta, sin desborde y sin errores de consola.
+
 ## v3.2.0 — modo oscuro v3 «Negro puro» del STICK UI SYSTEM (2026-11-24)
 
 Pedido del Señor Stick: la app seguía en el oscuro v2 (grafito `#15161b`, campo y vidrio). Ahora

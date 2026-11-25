@@ -863,31 +863,24 @@ html.light .vd-row{background:rgba(255,255,255,.72)}
 .vd-ring .rv{position:absolute;inset:0;display:grid;place-items:center;font-size:17px;font-weight:800;
   color:var(--tinta);font-variant-numeric:tabular-nums}
 
-/* ── Check-in de ánimo ── */
-.vd-moods{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
-.vd-mood{display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px 2px 9px;border-radius:16px;
-  border:1px solid var(--v-borde);background:var(--sup);cursor:pointer;font:inherit;
-  transition:background var(--t-menu) var(--ease),border-color var(--t-menu) var(--ease)}
-.vd-mood .md{width:18px;height:18px;border-radius:999px;border:2px solid var(--hc);
-  transition:background var(--t-menu) var(--ease),transform var(--t-consecuencia) var(--muelle)}
-.vd-mood .ml{font-size:10px;font-weight:700;color:var(--zinc-500);white-space:nowrap}
-.vd-mood.on{border-color:color-mix(in srgb,var(--hc) 45%,transparent);background:color-mix(in srgb,var(--hc) 11%,transparent)}
-.vd-mood.on .md{background:var(--hc);transform:scale(1.12)}
-.vd-mood.on .ml{color:var(--tinta)}
-.vd-mood:active{transform:scale(.95)}
-
-/* ── Prioridades ── */
-.vd-prio{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--linea)}
-.vd-prio:last-child{border-bottom:none}
-.vd-prio .n{font-size:11px;font-weight:800;color:var(--zinc-600);width:12px;flex:none;font-variant-numeric:tabular-nums}
-.vd-prio input{flex:1;min-width:0;background:transparent;border:none;outline:none;font:inherit;font-size:14px;
-  color:var(--zinc-100);padding:8px 0}
-.vd-prio input::placeholder{color:var(--zinc-600)}
-.vd-prio.done input{color:var(--zinc-500);text-decoration:line-through}
-.vd-prio .vd-chk{width:28px;height:28px;--hc:var(--emerald)}
-.vd-prio .vd-chk svg{width:12px;height:12px}
-.vd-prio.done .vd-chk{background:var(--emerald);border-color:var(--emerald)}
-.vd-prio.done .vd-chk svg{opacity:1;transform:scale(1)}
+/* ── Año por hábito: metas de racha ── */
+.vd-meta-racha{margin-top:12px}
+.vd-meta-racha .t{font-size:12px;color:var(--zinc-400)}
+.vd-meta-racha .t b{color:var(--tinta);font-weight:800;font-variant-numeric:tabular-nums}
+.vd-meta-racha .br{height:6px;border-radius:999px;background:var(--sup-2);overflow:hidden;margin-top:7px}
+.vd-meta-racha .br i{display:block;height:100%;border-radius:999px;background:var(--hc);transform-origin:left;
+  animation:vd-barra .7s var(--ease) both}
+.vd-logros{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:9px}
+.vd-logros .l{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--zinc-500);margin-right:2px}
+.vd-logro{min-width:24px;padding:3px 5px;border-radius:999px;text-align:center;font-size:10px;font-weight:800;
+  font-variant-numeric:tabular-nums;color:var(--zinc-600);background:var(--sup)}
+.vd-logro.ok{background:var(--hc);color:var(--contratinta)}
+/* Celdas del año de un hábito (heredan la rejilla .vd-pix) */
+.vd-pix i.on{background:var(--hc)}
+.vd-pix i.part{background:color-mix(in srgb,var(--hc) 38%,transparent)}
+.vd-pix i.miss{background:var(--sup-2)}
+.vd-pix i.off{background:transparent;box-shadow:inset 0 0 0 1px var(--linea)}
+.vd-pix i.pre{background:var(--sup);opacity:.45}
 
 /* ── Semana de hábitos ── */
 .vd-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -949,11 +942,6 @@ html.light .vd-row{background:rgba(255,255,255,.72)}
   animation:vd-barra .7s var(--ease) both}
 .vd-rank .pc{width:36px;text-align:right;font-size:12px;font-weight:800;color:var(--tinta);font-variant-numeric:tabular-nums}
 @keyframes vd-barra{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.vd-nota{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--linea)}
-.vd-nota:first-child{border-top:none}
-.vd-nota .dt{width:9px;height:9px;border-radius:999px;background:var(--hc);margin-top:5px;flex:none}
-.vd-nota .f{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--zinc-500)}
-.vd-nota .tx{font-size:13px;color:var(--zinc-300);margin-top:2px;line-height:1.45;word-break:break-word}
 
 /* ── Editor de hábito ── */
 .vd-icos{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
@@ -3207,8 +3195,8 @@ function conTransicion(fn){
      habits[]  {id,name,icon,color,kind:"check"|"count",target,unit,
                 freq:{type:"daily"|"days"|"weekly",days:[0..6, lunes=0],times},created,archived}
      log[iso][habitId] = número (sí/no guarda 1; cantidad guarda lo acumulado ese día)
-     moods[iso]  = {m:1..5, note}
-     prio[iso]   = [{t,d}] — las tres prioridades del día
+     moods[iso], prio[iso] — ánimo y prioridades de v3.0; sin interfaz desde v3.3 (el Señor Stick
+                 no los usaba). Se conservan solo para no borrar lo ya escrito ni romper respaldos.
    Rachas y porcentajes NO se guardan: se derivan siempre del log, igual que la asistencia del
    módulo Cuerpo. Un contador aparte se desincronizaría al corregir un día viejo. */
 function vida(){
@@ -3228,7 +3216,6 @@ function vida(){
 const vdEsGym=h=>h&&h.sistema==="gym";
 const VD_COLORES=["emerald","sky","violet","amber","orange","rose","teal","slate"];
 const VD_DIAS=["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
-const VD_ANIMO=[null,{n:"Mal",c:"rose"},{n:"Regular",c:"orange"},{n:"Normal",c:"amber"},{n:"Bien",c:"teal"},{n:"Muy bien",c:"emerald"}];
 const VD_ICO={
   check:'<path d="M20 6L9 17l-5-5"/>',
   libro:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
@@ -3444,24 +3431,6 @@ function vdAgregarIdea(i){
   vida().habits.push(Object.assign(structuredClone(x),{id:uid(),created:todayKey(),archived:false}));
   save();toast("Hábito agregado");vdRefrescar();
 }
-function vdCheckin(iso){
-  const m=vida().moods[iso]||{};
-  return `<div class="card section-gap" style="padding:16px">
-    <div class="h3" style="font-size:14px">¿Cómo va tu día?</div>
-    <div class="vd-moods">${[1,2,3,4,5].map(i=>`<button class="vd-mood${m.m===i?" on":""}" data-animo="${i}" style="--hc:var(--c-${VD_ANIMO[i].c})" aria-pressed="${m.m===i}"><span class="md"></span><span class="ml">${VD_ANIMO[i].n}</span></button>`).join("")}</div>
-    <div class="field" style="margin:12px 0 0"><textarea id="vdNota" rows="2" maxlength="280" placeholder="Una línea sobre hoy (opcional)">${escH(m.note||"")}</textarea></div>
-  </div>`;
-}
-function vdPrioridades(iso){
-  const p=vida().prio[iso]||[];let r="";
-  for(let i=0;i<3;i++){
-    const x=p[i]||{t:"",d:false};
-    r+=`<div class="vd-prio${x.d?" done":""}" data-pi="${i}"><span class="n">${i+1}</span>
-      <input type="text" maxlength="80" value="${escH(x.t)}" placeholder="${i===0?"Lo más importante de hoy":"Otra prioridad"}" data-pt="${i}" aria-label="Prioridad ${i+1}">
-      <button class="vd-chk" data-pd="${i}" aria-label="Prioridad ${i+1} hecha">${VD_CHK}</button></div>`;
-  }
-  return `<div class="card section-gap" style="padding:12px 16px"><div class="h3" style="font-size:14px;margin:4px 0 2px">Tres prioridades</div>${r}</div>`;
-}
 /* Puente con el módulo Cuerpo: la marca de "Entrené" es la MISMA de su calendario (S.days), no un
    hábito aparte. Dos verdades sobre el mismo hecho terminarían contradiciéndose. */
 function vdCuerpoCard(iso){
@@ -3494,62 +3463,22 @@ function renderInicio(){
       <div class="list-stagger">${lista.map(x=>vdFila(x,hoy)).join("")||`<p class="sub">Hoy no toca ninguno de tus hábitos.</p>`}</div></div>`;
     if(!vdPropios())h+=vdVacio();
   }
-  h+=vdCheckin(hoy)+vdPrioridades(hoy)+vdCuerpoCard(hoy);
+  h+=vdCuerpoCard(hoy);
   $("#v-inicio").innerHTML=h;
   bindInicio();
 }
-let vdTNota=null,vdTPrio=null;
 function bindInicio(){
   const v=$("#v-inicio"),hoy=todayKey();
   v.onclick=e=>{
-    const t=e.target.closest("[data-marcar],[data-cant],[data-editar],[data-animo],[data-pd],[data-idea],[data-nuevo],#vdCuerpo");
+    const t=e.target.closest("[data-marcar],[data-cant],[data-editar],[data-idea],[data-nuevo],#vdCuerpo");
     if(!t)return;
     if(t.dataset.marcar)return vdAlternar(t.dataset.marcar,hoy);
     if(t.dataset.cant)return vdHojaCantidad(t.dataset.cant,hoy);
     if(t.dataset.editar)return vdHojaHabito(t.dataset.editar);
     if(t.dataset.idea!==undefined)return vdAgregarIdea(+t.dataset.idea);
     if(t.dataset.nuevo)return vdHojaHabito();
-    if(t.dataset.animo){
-      const L=vida(),i=+t.dataset.animo,m=L.moods[hoy]||{};
-      m.m=m.m===i?undefined:i;
-      if(!m.m&&!m.note)delete L.moods[hoy];else L.moods[hoy]=m;
-      save();
-      v.querySelectorAll("[data-animo]").forEach(b=>{const on=+b.dataset.animo===m.m;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);});
-      return;
-    }
-    if(t.dataset.pd!==undefined){
-      const i=+t.dataset.pd,p=vdPrioArr(hoy);
-      if(!p[i].t.trim())return toast("Escribe la prioridad primero");
-      p[i].d=!p[i].d;vdGuardarPrio(hoy);
-      t.closest(".vd-prio").classList.toggle("done",p[i].d);
-      return;
-    }
     if(t.id==="vdCuerpo")go("hoy");
   };
-  const nota=$("#vdNota");
-  if(nota){
-    const guardar=()=>{const L=vida(),m=L.moods[hoy]||{};m.note=nota.value.trim();
-      if(!m.m&&!m.note)delete L.moods[hoy];else L.moods[hoy]=m;save();};
-    nota.oninput=()=>{clearTimeout(vdTNota);vdTNota=setTimeout(guardar,400);};
-    nota.onblur=()=>{clearTimeout(vdTNota);guardar();};
-  }
-  v.querySelectorAll("[data-pt]").forEach(inp=>{
-    const guardar=()=>{vdPrioArr(hoy)[+inp.dataset.pt].t=inp.value;vdGuardarPrio(hoy);};
-    inp.oninput=()=>{clearTimeout(vdTPrio);vdTPrio=setTimeout(guardar,400);};
-    inp.onblur=()=>{clearTimeout(vdTPrio);guardar();};
-    inp.onkeydown=e=>{if(e.key==="Enter")inp.blur();};
-  });
-}
-function vdPrioArr(iso){
-  const L=vida();const p=L.prio[iso]||[];
-  for(let i=0;i<3;i++)p[i]=p[i]||{t:"",d:false};
-  L.prio[iso]=p;return p;
-}
-function vdGuardarPrio(iso){
-  const L=vida(),p=L.prio[iso]||[];
-  p.forEach(x=>{if(!x.t.trim())x.d=false;});
-  if(!p.some(x=>x.t.trim()))delete L.prio[iso];
-  save();
 }
 
 /* ---------- Marcar sin re-renderizar ----------
@@ -3785,23 +3714,71 @@ function vdVistaMes(hs){
       <button class="icon-btn" data-mes="1"${act?" disabled":""} aria-label="Mes siguiente">${VD_DER}</button></div>
     <div class="list-stagger">${cards}</div>`;
 }
+/* ---------- Año por hábito: «no rompas la cadena» ----------
+   Metas de racha escalonadas: la siguiente siempre está cerca (7 → 14 → 30…), que es lo que hace
+   que valga la pena no fallar mañana. Los semanales cuentan semanas. */
+let vdAnioH=null;
+const VD_METAS_DIA=[7,14,30,60,100,200,365],VD_METAS_SEM=[4,8,12,26,52];
+function vdMetas(h){return vdSemanal(h)?VD_METAS_SEM:VD_METAS_DIA;}
+function vdHechosAnio(h,y){
+  const hoy=todayKey();let n=0;
+  for(let iso=y+"-01-01";iso<=y+"-12-31"&&iso<=hoy;iso=addDaysIso(iso,1))if(vdHecho(h,iso))n++;
+  return n;
+}
+function vdTarjetaAnio(h,y){
+  const r=vdRacha(h),mejor=vdMejor(h),metas=vdMetas(h);
+  const sig=metas.find(m=>m>r.n),ant=[...metas].reverse().find(m=>m<=r.n)||0;
+  const pct=sig?Math.round((r.n-ant)/(sig-ant)*100):100;
+  const logradas=metas.map(m=>`<span class="vd-logro${mejor>=m?" ok":""}">${m}</span>`).join("");
+  const g=vdRejillaAnio(y,iso=>{
+    const v=vdValor(h,iso);
+    if(v>=vdMeta(h))return {cl:"on"};
+    if(v>0)return {cl:"part"};
+    if(!vdNacio(h,iso))return {cl:"pre"};          // antes de crear el hábito: no cuenta
+    if(!vdToca(h,iso))return {cl:"off"};
+    return {cl:vdSemanal(h)?"":"miss"};
+  },iso=>`data-hx="${h.id}|${iso}"`);
+  return `<div class="card" style="padding:14px 16px;margin-bottom:12px;--hc:var(--c-${h.color})">
+    <div class="vd-whead" data-editar="${h.id}" style="margin:0"><div class="vd-ico">${icoVida(h.icon)}</div><div class="vd-name">${escH(h.name)}</div><span class="st">${vdFreqTxt(h)}</span></div>
+    <div class="vd-meta-racha">
+      <div class="t"><b>${r.n}</b> ${r.u} de racha${sig?` · siguiente meta: <b>${sig}</b>`:" · todas las metas logradas"}</div>
+      <div class="br"><i style="width:${pct}%"></i></div>
+      <div class="vd-logros"><span class="l">Metas logradas</span>${logradas}</div>
+    </div>
+    <div class="vd-stats3"><div><div class="v">${mejor}</div><div class="l">Mejor racha</div></div>
+      <div><div class="v">${vdHechosAnio(h,y)}</div><div class="l">Días en ${y}</div></div>
+      <div><div class="v">${(p=>p==null?"–":Math.round(p*100)+"%")(vdPct(h,y+"-01-01",y+"-12-31"))}</div><div class="l">Constancia</div></div></div>
+    ${g}</div>`;
+}
+function vdVistaAnio(hs){
+  const y=vdAnioH||+todayKey().slice(0,4);
+  return `<div class="vd-nav"><div class="t" style="text-align:left">Año ${y}</div>${vdNavAnio(y,"data-anioh")}</div>
+    <div class="list-stagger">${hs.map(h=>vdTarjetaAnio(h,y)).join("")}</div>
+    <p class="sub" style="font-size:11px;margin-top:4px">Cada fila es un mes y cada cuadro un día. Lleno: cumplido · tenue: a medias · gris: tocaba y quedó sin marcar · contorno: no tocaba · apagado: antes de crear el hábito. Toca un cuadro para ver el día.</p>`;
+}
 function renderHabitos(){
   const hs=vdHabitos();
   let h=`<div class="view-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
     <div><div class="label">Tu constancia</div><div class="h1" style="margin-top:2px">Hábitos</div></div>
     <button class="btn-secondary vd-mini" data-nuevo="1">+ Nuevo</button></div>`;
   {
-    h+=`<div class="vd-seg"><button data-modo="semana" class="${vdModo==="semana"?"on":""}">Semana</button><button data-modo="mes" class="${vdModo==="mes"?"on":""}">Mes</button></div>`;
-    h+=vdModo==="semana"?vdVistaSemana(hs):vdVistaMes(hs);
+    h+=`<div class="vd-seg"><button data-modo="semana" class="${vdModo==="semana"?"on":""}">Semana</button><button data-modo="mes" class="${vdModo==="mes"?"on":""}">Mes</button><button data-modo="anio" class="${vdModo==="anio"?"on":""}">Año</button></div>`;
+    h+=vdModo==="semana"?vdVistaSemana(hs):vdModo==="mes"?vdVistaMes(hs):vdVistaAnio(hs);
     if(!vdPropios())h+=`<div class="section-gap">${vdVacio()}</div>`;
   }
   const arch=vida().habits.filter(x=>x.archived).length;
   if(arch)h+=`<button class="btn-secondary section-gap" data-arch="1" style="width:100%">Archivados (${arch})</button>`;
   $("#v-habitos").innerHTML=h;
   $("#v-habitos").onclick=e=>{
-    const t=e.target.closest("[data-modo],[data-sem],[data-mes],[data-c],[data-editar],[data-nuevo],[data-idea],[data-arch]");
+    const t=e.target.closest("[data-modo],[data-sem],[data-mes],[data-anioh],[data-hx],[data-c],[data-editar],[data-nuevo],[data-idea],[data-arch]");
     if(!t||t.disabled)return;
     if(t.dataset.modo){vdModo=t.dataset.modo;return renderHabitos();}
+    if(t.dataset.anioh){const ya=+todayKey().slice(0,4),y=(vdAnioH||ya)+(+t.dataset.anioh);vdAnioH=y>=ya?null:y;return renderHabitos();}
+    if(t.dataset.hx){
+      const [id,iso]=t.dataset.hx.split("|"),x=vdBuscar(id);if(!x||iso>todayKey())return;
+      const v=vdValor(x,iso),est=vdHecho(x,iso)?"cumplido":v>0?`${fmtN(v)} de ${fmtN(vdMeta(x))}`:vdToca(x,iso)?"sin marcar":"no tocaba";
+      return toast(`${fechaCorta(iso)} · ${est}`);
+    }
     if(t.dataset.sem){const lh=vdLunes(todayKey());const base=vdSem||lh;const nx=addDaysIso(base,7*(+t.dataset.sem));vdSem=nx>=lh?null:nx;return renderHabitos();}
     if(t.dataset.mes){const n=new Date(),ym=vdMes||{y:n.getFullYear(),m:n.getMonth()};const d=new Date(ym.y,ym.m+(+t.dataset.mes),1);
       vdMes=(d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth())?null:{y:d.getFullYear(),m:d.getMonth()};return renderHabitos();}
@@ -3817,33 +3794,39 @@ function renderHabitos(){
 /* ============================================================
    VISTA: RESUMEN — la mirada larga
    ============================================================ */
-let vdAnio=null,vdPixModo="animo";
-function vdPixeles(){
-  const hoy=todayKey(),y=vdAnio||+hoy.slice(0,4),act=y===+hoy.slice(0,4),moods=vida().moods;
-  let g="";
+/* Cuadrícula anual de 12 filas (meses) × 31 columnas (días). Más legible en un teléfono que la
+   tira de 53 semanas de GitHub, que a 375 px deja cuadros de 4 px. `celda(iso)` devuelve
+   {cl, st} para cada día pasado; los futuros y los que no existen los resuelve esta función. */
+function vdRejillaAnio(y,celda,attrDe){
+  const hoy=todayKey();let g="";
   for(let m=0;m<12;m++){
     g+=`<span class="mo">${MESES[m]}</span>`;
     const dm=new Date(y,m+1,0).getDate();
     for(let d=1;d<=31;d++){
       if(d>dm){g+=`<i class="x"></i>`;continue;}
-      const iso=isoOf(new Date(y,m,d));let st="",cl="";
-      if(iso>hoy)cl="fut";
-      else if(vdPixModo==="animo"){const v=(moods[iso]||{}).m;if(v)st=`background:var(--c-${VD_ANIMO[v].c})`;}
-      else{const p=vdPctDia(iso);if(p)st=`background:color-mix(in srgb,var(--emerald) ${Math.round(20+p*80)}%,transparent)`;}
-      if(iso===hoy)cl+=" today";
-      g+=`<i class="${cl.trim()}" style="${st}" data-px="${iso}"></i>`;
+      const iso=isoOf(new Date(y,m,d));
+      const c=iso>hoy?{cl:"fut",st:""}:celda(iso);
+      g+=`<i class="${(c.cl||"")+(iso===hoy?" today":"")}" style="${c.st||""}" ${attrDe(iso)}></i>`;
     }
   }
-  const ley=vdPixModo==="animo"
-    ?[1,2,3,4,5].map(i=>`<span><i style="background:var(--c-${VD_ANIMO[i].c})"></i>${VD_ANIMO[i].n}</span>`).join("")
-    :[25,50,75,100].map(p=>`<span><i style="background:color-mix(in srgb,var(--emerald) ${Math.round(20+p*.8)}%,transparent)"></i>${p}%</span>`).join("");
+  return `<div class="vd-pix">${g}</div>`;
+}
+function vdNavAnio(y,data){
+  const act=y===+todayKey().slice(0,4);
+  return `<div class="acts" style="align-items:center;gap:4px"><button class="icon-btn" ${data}="-1" style="width:30px;height:30px" aria-label="Año anterior">${VD_IZQ}</button>
+    <span class="label-mono" style="min-width:34px;text-align:center">${y}</span>
+    <button class="icon-btn" ${data}="1" style="width:30px;height:30px"${act?" disabled":""} aria-label="Año siguiente">${VD_DER}</button></div>`;
+}
+let vdAnio=null;
+function vdPixeles(){
+  const y=vdAnio||+todayKey().slice(0,4);
+  const g=vdRejillaAnio(y,iso=>{const p=vdPctDia(iso);
+    return {cl:"",st:p?`background:color-mix(in srgb,var(--emerald) ${Math.round(20+p*80)}%,transparent)`:""};},iso=>`data-px="${iso}"`);
+  const ley=[25,50,75,100].map(p=>`<span><i style="background:color-mix(in srgb,var(--emerald) ${Math.round(20+p*.8)}%,transparent)"></i>${p}%</span>`).join("");
   return `<div class="card section-gap" style="padding:16px">
-    <div class="card-head"><div class="h3" style="font-size:14px">Tu año en píxeles</div>
-      <div class="acts" style="align-items:center;gap:4px"><button class="icon-btn" data-anio="-1" style="width:30px;height:30px" aria-label="Año anterior">${VD_IZQ}</button>
-      <span class="label-mono" style="min-width:34px;text-align:center">${y}</span>
-      <button class="icon-btn" data-anio="1" style="width:30px;height:30px"${act?" disabled":""} aria-label="Año siguiente">${VD_DER}</button></div></div>
-    <div class="vd-seg mini" style="margin-top:10px"><button data-pixm="animo" class="${vdPixModo==="animo"?"on":""}">Ánimo</button><button data-pixm="habitos" class="${vdPixModo==="habitos"?"on":""}">Hábitos cumplidos</button></div>
-    <div class="vd-pix">${g}</div><div class="vd-legend">${ley}</div></div>`;
+    <div class="card-head"><div class="h3" style="font-size:14px">Tu año en píxeles</div>${vdNavAnio(y,"data-anio")}</div>
+    <p class="sub" style="font-size:11px;margin-top:4px">Cada cuadro es un día; más intenso, más hábitos cumplidos.</p>
+    ${g}<div class="vd-legend">${ley}</div></div>`;
 }
 function renderResumen(){
   const hoy=todayKey(),hs=vdHabitos(),n=new Date();
@@ -3851,15 +3834,14 @@ function renderResumen(){
   const pSem=vdPctRango(lun,hoy),pPas=vdPctRango(addDaysIso(lun,-7),addDaysIso(lun,-1));
   let perf=0;for(let iso=ini;iso<=hoy;iso=addDaysIso(iso,1))if(vdPctDia(iso)===1)perf++;
   let best=null;hs.forEach(x=>{const r=vdRacha(x);if(r.n>0&&(!best||r.n>best.r.n))best={x,r};});
-  const ms=Object.entries(vida().moods).filter(([iso,v])=>iso>=ini&&iso<=hoy&&v.m).map(([,v])=>v.m);
-  const avg=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:null;
+  const p30=vdPctRango(addDaysIso(hoy,-29),hoy);
   const delta=pSem!=null&&pPas!=null?Math.round((pSem-pPas)*100):null;
   let h=`<div class="view-head"><div class="label">La mirada larga</div><div class="h1" style="margin-top:2px">Resumen</div></div>
     <div class="stat-grid list-stagger">
       <div class="stat"><div class="sv">${pSem==null?"–":Math.round(pSem*100)+"<small>%</small>"}${delta!=null?`<small style="color:var(--${delta>=0?"emerald":"rose"})" title="Contra la semana pasada">${delta>=0?"+":""}${delta}</small>`:""}</div><div class="sl">Hábitos esta semana</div></div>
       <div class="stat"><div class="sv">${perf}</div><div class="sl">Días perfectos del mes</div></div>
       <div class="stat"><div class="sv">${best?best.r.n+`<small>${best.r.u}</small>`:"0"}</div><div class="sl">${best?"Racha · "+escH(best.x.name):"Mejor racha activa"}</div></div>
-      <div class="stat"><div class="sv" style="font-size:${avg?"21":"26"}px">${avg?VD_ANIMO[Math.round(avg)].n:"–"}</div><div class="sl">Ánimo del mes${ms.length?` · ${ms.length} ${ms.length===1?"día":"días"}`:""}</div></div>
+      <div class="stat"><div class="sv">${p30==null?"–":Math.round(p30*100)+"<small>%</small>"}</div><div class="sl">Constancia 30 días</div></div>
     </div>`;
   h+=vdPixeles();
   // Constancia de cada hábito en los últimos 30 días, de mayor a menor
@@ -3869,21 +3851,14 @@ function renderResumen(){
     ${rk.length?rk.map(r=>`<div class="vd-rank" style="--hc:var(--c-${r.x.color})"><div class="nm">${escH(r.x.name)}</div>
       <div class="br"><i style="width:${Math.round(r.p*100)}%"></i></div><div class="pc">${Math.round(r.p*100)}%</div></div>`).join("")
       :`<p class="sub" style="font-size:12px">Aparece en cuanto tus hábitos tengan al menos un día registrado.</p>`}</div>`;
-  // Diario: lo que se escribió en el check-in
-  const notas=Object.entries(vida().moods).filter(([,v])=>v.note).sort((a,b)=>a[0]<b[0]?1:-1).slice(0,14);
-  h+=`<div class="card section-gap" style="padding:16px"><div class="h3" style="font-size:14px;margin-bottom:6px">Diario</div>
-    ${notas.length?notas.map(([iso,v])=>`<div class="vd-nota" style="--hc:var(--c-${v.m?VD_ANIMO[v.m].c:"slate"})"><span class="dt"></span>
-      <div style="min-width:0"><div class="f">${fechaLarga(iso)}${v.m?" · "+VD_ANIMO[v.m].n:""}</div><div class="tx">${escH(v.note)}</div></div></div>`).join("")
-      :`<p class="sub" style="font-size:12px">Las líneas que escribas en «¿Cómo va tu día?» se guardan aquí.</p>`}</div>`;
   $("#v-resumen").innerHTML=h;
   $("#v-resumen").onclick=e=>{
-    const t=e.target.closest("[data-anio],[data-pixm],[data-px]");if(!t||t.disabled)return;
+    const t=e.target.closest("[data-anio],[data-px]");if(!t||t.disabled)return;
     if(t.dataset.anio){const y=(vdAnio||+todayKey().slice(0,4))+(+t.dataset.anio);vdAnio=y>=+todayKey().slice(0,4)?null:y;return renderResumen();}
-    if(t.dataset.pixm){vdPixModo=t.dataset.pixm;return renderResumen();}
     if(t.dataset.px){
       const iso=t.dataset.px;if(iso>todayKey())return;
-      const m=vida().moods[iso],p=vdPctDia(iso);
-      toast(`${fechaCorta(iso)} · ${m&&m.m?VD_ANIMO[m.m].n:"sin ánimo"}${p!=null?" · "+Math.round(p*100)+"% hábitos":""}`);
+      const p=vdPctDia(iso);
+      toast(`${fechaCorta(iso)} · ${p!=null?Math.round(p*100)+"% de los hábitos":"no tocaba ningún hábito"}`);
     }
   };
 }
